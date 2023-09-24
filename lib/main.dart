@@ -4,12 +4,15 @@ herramientas para crear interfaces de usuario en Flutter
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/screems/register.dart';
 import 'package:proyecto_tesis/blocs/register_bloc.dart';
+import 'package:proyecto_tesis/screems/login.dart';
+import 'package:proyecto_tesis/blocs/login_bloc.dart';
 
 /*
 Esta función es el punto de entrada de la aplicación. Llama a 'runApp()' con
 una instancia de 'MyApp', que es el widget raíz de la aplicación
  */
 final registerBloc = RegisterBloc();
+final loginBloc = LoginBloc();
 
 void main() {
 
@@ -131,6 +134,12 @@ class _ProviderDemoScreenState extends State<ProviderDemoScreen> {
                 ),
                 onPressed: () {
 
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(bloc: loginBloc),
+                    ),
+                  );
                 },
               ),
             ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/blocs/login_bloc.dart';
+import 'package:proyecto_tesis/screems/recuperar_contraseña.dart';
+import 'package:proyecto_tesis/blocs/recuperar_contraseña_bloc.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -224,6 +226,17 @@ class _LoginPageState extends State<LoginPage> {
                               final email = _emailController.text;
                               final password = _passwordController.text;
                               widget.bloc.login(email, password);
+
+                              final RecuperarContraBloc recuperarBloc = RecuperarContraBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(bloc: recuperarBloc,)));
+                            }
+                            else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                  content: Text('Por favor, complete el formulario correctamente.'),
+                                  backgroundColor: Colors.red,
+                                  ),
+                                  );
                             }
                           },
                           color: Colors.blueAccent,
