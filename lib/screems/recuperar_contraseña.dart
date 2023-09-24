@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
+import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 
 class Recuperar extends StatefulWidget {
 
@@ -137,6 +138,10 @@ class _RecuperarState extends State<Recuperar> {
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
                               final email = _emailController.text;
+
+                              final AuthBloc authBloc = AuthBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=> CambiarContra(authBloc: authBloc,)));
+
                             // Envía una contraseña vacía
                             }
                           },
