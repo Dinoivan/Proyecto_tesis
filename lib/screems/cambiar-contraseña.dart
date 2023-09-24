@@ -228,7 +228,7 @@ class _CambiarContraState extends State<CambiarContra> {
                               widget.authBloc.login(verificationCode, password);
 
                               final AuthBloc authBloc = AuthBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(authBloc: authBloc,)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc,)));
                             }
                             else{
                               ScaffoldMessenger.of(context).showSnackBar(

@@ -44,7 +44,7 @@ class _RecuperarState extends State<Recuperar> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueAccent,
-                  fontSize: 30.0,
+                  fontSize: 25.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
