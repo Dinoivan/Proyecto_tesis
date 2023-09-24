@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/blocs/login_bloc.dart';
 import 'package:proyecto_tesis/screems/recuperar_contraseña.dart';
 import 'package:proyecto_tesis/blocs/recuperar_contraseña_bloc.dart';
+import 'package:proyecto_tesis/blocs/register_bloc.dart';
+import 'package:proyecto_tesis/screems/register.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -263,7 +265,10 @@ class _LoginPageState extends State<LoginPage> {
                         children: <Widget>[
                           MaterialButton(
                             minWidth: double.infinity,
-                            onPressed: () {},
+                            onPressed: () {
+                              final RecuperarContraBloc recuperarBloc = RecuperarContraBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(bloc: recuperarBloc,)));
+                            },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -283,7 +288,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           MaterialButton(
                             minWidth: double.infinity,
-                            onPressed: () {},
+                            onPressed: () {
+                              final RegisterBloc registerBloc = RegisterBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Register(bloc: registerBloc,)));
+                            },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50),
                             ),

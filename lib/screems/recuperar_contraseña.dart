@@ -29,6 +29,7 @@ class _RecuperarState extends State<Recuperar> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
