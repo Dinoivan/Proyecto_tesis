@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proyecto_tesis/blocs/recuperar_contraseña_bloc.dart';
-import 'package:proyecto_tesis/blocs/login_bloc.dart';
 import 'package:proyecto_tesis/screems/login.dart';
+import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 
 class Recuperar extends StatefulWidget {
 
-  final RecuperarContraBloc bloc;
+  final AuthBloc authBloc;
 
-  Recuperar({required this.bloc});
+  Recuperar({required this.authBloc});
 
   @override
   _RecuperarState createState() => _RecuperarState();
@@ -21,7 +20,7 @@ class _RecuperarState extends State<Recuperar> {
 
   @override
   void dispose() {
-    widget.bloc.dispose();
+    widget.authBloc.dispose();
     super.dispose();
   }
 
@@ -166,8 +165,8 @@ class _RecuperarState extends State<Recuperar> {
                           MaterialButton(
                               minWidth: double.infinity,
                               onPressed: (){
-                                final LoginBloc loginBloc = LoginBloc();
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginPage(bloc: loginBloc,)));
+                                final AuthBloc authBloc = AuthBloc();
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginPage(authBloc: authBloc,)));
 
                               },
 

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto_tesis/blocs/login_bloc.dart';
 import 'package:proyecto_tesis/screems/recuperar_contraseña.dart';
-import 'package:proyecto_tesis/blocs/recuperar_contraseña_bloc.dart';
 import 'package:proyecto_tesis/blocs/register_bloc.dart';
 import 'package:proyecto_tesis/screems/register.dart';
+import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -78,9 +77,9 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
 
 class LoginPage extends StatefulWidget {
 
-  final LoginBloc bloc;
+  final AuthBloc authBloc;
 
-  LoginPage({required this.bloc});
+  LoginPage({required this.authBloc});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -95,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    widget.bloc.dispose();
+    widget.authBloc.dispose();
     super.dispose();
   }
 
@@ -227,10 +226,10 @@ class _LoginPageState extends State<LoginPage> {
                             if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                               final email = _emailController.text;
                               final password = _passwordController.text;
-                              widget.bloc.login(email, password);
+                              widget.authBloc.login(email, password);
 
-                              final RecuperarContraBloc recuperarBloc = RecuperarContraBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(bloc: recuperarBloc,)));
+                              final AuthBloc authBloc = AuthBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(authBloc: authBloc,)));
                             }
                             else{
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -266,8 +265,8 @@ class _LoginPageState extends State<LoginPage> {
                           MaterialButton(
                             minWidth: double.infinity,
                             onPressed: () {
-                              final RecuperarContraBloc recuperarBloc = RecuperarContraBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(bloc: recuperarBloc,)));
+                              final AuthBloc authBloc = AuthBloc();
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(authBloc: authBloc,)));
                             },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),

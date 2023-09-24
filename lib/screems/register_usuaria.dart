@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:proyecto_tesis/blocs/usuaria_register_bloc.dart';
-import 'package:proyecto_tesis/blocs/login_bloc.dart';
 import 'package:proyecto_tesis/screems/login.dart';
+import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -211,10 +211,10 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                   minWidth: double.infinity,
                   height: 60,
                   onPressed: () {
-                    final LoginBloc loginBloc = LoginBloc();
+                    final AuthBloc authBloc = AuthBloc();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginPage(bloc: loginBloc,)),
+                      MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc,)),
                     );
                   },
                   color: Colors.blueAccent,
