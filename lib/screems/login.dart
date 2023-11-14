@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_tesis/screems/home.dart';
 import 'package:proyecto_tesis/screems/recuperar_contraseña.dart';
 import 'package:proyecto_tesis/blocs/register_bloc.dart';
 import 'package:proyecto_tesis/screems/register.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
+import 'package:proyecto_tesis/services/LoginService.dart';
+import'dart:convert';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -222,22 +225,36 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         height: 50,
                         child: RaisedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                               final email = _emailController.text;
                               final password = _passwordController.text;
-                              widget.authBloc.login(email, password);
-
-                              final AuthBloc authBloc = AuthBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Recuperar(authBloc: authBloc,)));
+                              String? resultado = await widget.authBloc.login(email, password);
+                              if(resultado!=null){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Su inicio de sesión fue exitoso.'),
+                                    duration: Duration(seconds: 4),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }else{
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error al iniciar sesión su contraseña o correo debe cambiar.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                             else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
                                   content: Text('Por favor, complete el formulario correctamente.'),
                                   backgroundColor: Colors.red,
-                                  ),
-                                  );
+                                ),
+                              );
                             }
                           },
                           color: Colors.blueAccent,
@@ -288,6 +305,7 @@ class _LoginPageState extends State<LoginPage> {
                           MaterialButton(
                             minWidth: double.infinity,
                             onPressed: () {
+
                               final RegisterBloc registerBloc = RegisterBloc();
                               Navigator.push(context, MaterialPageRoute(builder: (context) => Register(bloc: registerBloc,)));
                             },

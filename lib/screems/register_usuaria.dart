@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:proyecto_tesis/blocs/register_bloc.dart';
 import 'package:proyecto_tesis/blocs/usuaria_register_bloc.dart';
 import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
+import 'package:proyecto_tesis/services/RegistroService.dart';
+import 'package:proyecto_tesis/models/Registro_models.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
@@ -68,19 +71,28 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
 
 class RegisterUsuaria extends StatefulWidget {
 
-  final UsuariaRegisterBloc bloc; // Importante: Reemplaza UsuariaRegisterBloc con el nombre correcto de tu bloc
+  final RegisterBloc bloc;// Importante: R
+  final UsuariaRegisterBloc usuariaBloc; // Agrega UsuariaRegisterBloc// eemplaza UsuariaRegisterBloc con el nombre correcto de tu bloc
 
-  RegisterUsuaria({required this.bloc});
+  RegisterUsuaria({required this.bloc,required this.usuariaBloc});
 
   @override
   _RegisterUsuariaState createState() => _RegisterUsuariaState();
 }
 
 class _RegisterUsuariaState extends State<RegisterUsuaria> {
-  final TextEditingController _phoneController = TextEditingController();
+
   final TextEditingController _aliasController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _firstnameControler = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  // Nueva instancia de _DateWidget
+  final _DateWidget dateWidget = _DateWidget();
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,13 +147,13 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                   ),
 
                   TextField(
-                    controller: _phoneController,
-                    onChanged: (phone) {
-                      widget.bloc.updatePhone(phone);
+                    controller: _firstnameControler,
+                    onChanged: (firstname) {
+                      widget.usuariaBloc.updateFirstname(firstname);
                     },
                     decoration: InputDecoration(
-                      hintText: "Número de celular",
-                      labelText: "Teléfono de contacto",
+                      hintText: "Primer nombre",
+                      labelText: "Pirmer nombre de usuaria",
                       labelStyle: TextStyle(fontSize: 18, color: Colors.black),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -160,7 +172,7 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
               TextField(
                 controller: _aliasController,
                 onChanged: (alias) {
-                  widget.bloc.updateAlias(alias);
+                  widget.usuariaBloc.updateAlias(alias);
                 },
                 decoration: InputDecoration(
                   hintText: "Alias",
@@ -181,7 +193,7 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
               TextField(
                 controller: _emailController,
                 onChanged: (email) {
-                  widget.bloc.updateEmail(email);
+                  widget.usuariaBloc.updateEmail(email);
                 },
                 decoration: InputDecoration(
                   hintText: "dinosoft1120@gmail.com",
@@ -198,8 +210,7 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                 obscureText: false,
                 maxLines: 1,
               ),
-              PasswordFormField(controller: _passwordController,bloc: widget.bloc,),
-
+              PasswordFormField(controller: _passwordController,bloc: widget.usuariaBloc,),
               Container(
                 padding: EdgeInsets.only(top: 3, left: 3),
                 decoration:
@@ -210,12 +221,69 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                 child: MaterialButton(
                   minWidth: double.infinity,
                   height: 60,
-                  onPressed: () {
-                    final AuthBloc authBloc = AuthBloc();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc,)),
-                    );
+
+                  onPressed: () async {
+
+                    try {
+                      String firstname = _firstnameControler.text;
+                      String alias = _aliasController.text;
+                      String email = _emailController.text;
+                      String password = _passwordController.text;
+                      String birthdayDate = dateWidget.getSelectedDate();
+
+                      String? fullname = widget.bloc.getFullname();
+                      String? lastname = widget.bloc.getLastName();
+
+                      // Almacena los valores antes de la llamada al constructor
+                      String citizenFullname = fullname ??
+                          ""; // Si fullname es null, asigna un valor por defecto (en este caso, una cadena vacía)
+                      String citizenLastname = lastname ??
+                          ""; // Lo mismo aplica a lastname
+
+                      print("Este el cumpleaños: $birthdayDate");
+
+                      // Crear instancia de Citizen con los datos recopilados
+                      Citizen citizen = Citizen(
+                        active: true,
+                        alias: alias,
+                        birthdayDate: birthdayDate,
+                        email: email,
+                        firstname: firstname,
+                        fullname: citizenFullname,
+                        lastname: citizenLastname,
+                        password: password,
+                        // Otros campos según la definición de tu modelo
+                      );
+
+                      // Llamar al servicio de registro
+                      await saveCitizen(citizen);
+
+                      final AuthBloc authBloc = AuthBloc();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            LoginPage(authBloc: authBloc,)),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Registro exitoso.'),
+                          duration: Duration(seconds: 4),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+
+                    }catch(e){
+                      print("Error: $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Algo salio mal verifica.'),
+                          duration: Duration(seconds: 4),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+
+                    }
                   },
                   color: Colors.blueAccent,
                   elevation: 0,
@@ -249,19 +317,23 @@ class DateWidget extends StatefulWidget{
 }
 
 class _DateWidget extends State<DateWidget>{
-  TextEditingController dateinput = TextEditingController();
+  TextEditingController birthdayDate = TextEditingController();
 
   @override
   void initState() {
-    dateinput.text = "";
     super.initState();
+  }
+
+  String getSelectedDate() {
+    print("Selected Date: ${birthdayDate.text}");
+    return birthdayDate.text;
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
         child:TextField(
-          controller: dateinput,
+          controller: birthdayDate,
           decoration: InputDecoration(
             suffixIcon: Icon(Icons.calendar_today,),
             labelText: "Selecciona tu fecha de nacimiento",
@@ -275,6 +347,7 @@ class _DateWidget extends State<DateWidget>{
             ),
           ),
           readOnly: true,
+
           onTap: () async {
             DateTime initialDate = DateTime(2000);
             DateTime pickedDate = await showDatePicker(
@@ -285,10 +358,10 @@ class _DateWidget extends State<DateWidget>{
             ) as DateTime;
             if(pickedDate != null ){
               print(pickedDate);
-              String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+              String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
               print(formattedDate);
               setState(() {
-                dateinput.text = formattedDate;
+                birthdayDate.text = formattedDate;
               });
             }else{
               print("No ha seleccionado una fecha");

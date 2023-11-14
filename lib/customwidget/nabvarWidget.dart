@@ -1,0 +1,119 @@
+import 'package:flutter/material.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+import 'package:proyecto_tesis/services/CitizenService.dart';
+import 'package:proyecto_tesis/blocs/auth_bloc.dart';
+import 'dart:async';
+
+class Navbar extends StatefulWidget {
+  final AuthBloc authBloc; // Agrega una propiedad para el AuthBloc
+
+  Navbar({required this.authBloc});
+
+  @override
+  State<StatefulWidget> createState() => _NavBarState();
+}
+
+class _NavBarState extends State<Navbar> {
+
+  int? userId;
+  String? token;
+
+  @override
+  void initState() {
+    _loadToken();
+    }
+
+    Future<void> _loadToken() async {
+    String? storedToken = await widget.authBloc.getStoredToken();
+    setState(() {
+      token = storedToken;
+    });
+
+    if(token!=null){
+      Map<String,dynamic> decodedToken = Jwt.parseJwt(token!);
+      print("Token decodificado: $decodedToken");
+
+      if(decodedToken.containsKey("user_id")){
+        userId = decodedToken["user_id"];
+      }
+    }
+
+    print("Hola soy el token del navbar: $token");
+    print("Hola soy el id: $userId");
+
+  }
+    @override
+    Widget build(BuildContext context) {
+
+      return Container(
+        child: FutureBuilder(
+          future: fecthCitizenFirsName(token,userId),
+              builder: (BuildContext ctx, AsyncSnapshot snapshot) {
+                if (snapshot.data == null) {
+                  return Container();
+                } else {
+                  return Row(
+                    children: [
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/seguridad.png', width: 60, height: 70)),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Hola, ',
+                              style: TextStyle(fontSize: 24),
+                            ),
+                            Text(
+                              snapshot.data.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 24),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              'Usuaria',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w300),
+                            ),
+                            Text(
+                              ' | ',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w300),
+                            ),
+                            Text(
+                              'Bienvenida',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    Align(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 80),
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.notifications),
+                              iconSize: 32,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                );
+              }
+            }),
+      );
+    }
+  }
+

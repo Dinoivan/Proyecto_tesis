@@ -18,6 +18,7 @@ class _RecuperarState extends State<Recuperar> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   String? _emailError;
+  bool _showSuccessMessage = false;
 
   @override
   void dispose() {
@@ -29,10 +30,33 @@ class _RecuperarState extends State<Recuperar> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text("Atras",
+            style: TextStyle(
+              color: Colors.blueAccent,
+            ),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back,
+              size: 20,
+              color: Colors.blueAccent,),
+          ),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(70.0), // Ajusta la altura según tus necesidades
+            child: Container(), // Agrega un contenedor vacío para ajustar la altura
+          ),
 
-      body: SingleChildScrollView(
+        ),
+        body: SingleChildScrollView(
         child: Container(
-          alignment: Alignment.center,
+          alignment: Alignment.topCenter,
           constraints: BoxConstraints(
             minHeight: screenHeight,
           ),
@@ -134,14 +158,35 @@ class _RecuperarState extends State<Recuperar> {
                         width: double.infinity,
                         height: 50,
                         child: RaisedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
                               final email = _emailController.text;
-
-                              final AuthBloc authBloc = AuthBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=> CambiarContra(authBloc: authBloc,)));
-
+                              String? resultado = await widget.authBloc.sendRecoveryEmail(email);
+                              if(resultado!=null){
+                                setState((){
+                                  _showSuccessMessage = true;
+                                });
+                                final AuthBloc authBloc = AuthBloc();
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> CambiarContra(authBloc: authBloc,)));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'Se envio el codigo de verificación a su correo seleccionado.'
+                                    ),
+                                    duration: Duration(seconds: 4),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }else{
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error al enviar código de verificación.'),
+                                    duration: Duration(seconds: 4),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             // Envía una contraseña vacía
                             }
                           },
@@ -172,14 +217,11 @@ class _RecuperarState extends State<Recuperar> {
                               onPressed: (){
                                 final AuthBloc authBloc = AuthBloc();
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginPage(authBloc: authBloc,)));
-
                               },
 
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20)
                               ),
-
-
 
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -207,6 +249,20 @@ class _RecuperarState extends State<Recuperar> {
           ),
         ),
       ),
+      // Mostrar el SnackBar cuando _showSuccessMessage sea verdadero
+      floatingActionButton: _showSuccessMessage
+          ? FloatingActionButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Se envió un código de verificación a su correo electrónico.',
+              textAlign: TextAlign.center,),
+              backgroundColor: Colors.green, // Color de fondo para el mensaje exitoso
+            ),
+          );
+        },
+      )
+          : null
     );
   }
 }

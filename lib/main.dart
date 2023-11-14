@@ -12,9 +12,9 @@ Esta función es el punto de entrada de la aplicación. Llama a 'runApp()' con
 una instancia de 'MyApp', que es el widget raíz de la aplicación
  */
 
-
 final registerBloc = RegisterBloc();
 final authBloc = AuthBloc();
+
 
 void main() {
 
@@ -74,7 +74,7 @@ class _ProviderDemoScreenState extends State<ProviderDemoScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    print("AuthBloc hashCode: ${authBloc.hashCode}");
     return Scaffold(
       body: Center(
         child: Column(

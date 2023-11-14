@@ -1,20 +1,35 @@
 import 'dart:async';
 
 class RegisterBloc {
-  final _nameController = StreamController<String>();
+  final _fullnameController = StreamController<String>();
   final _lastNameController = StreamController<String>();
 
-  // Streams para transmitir los valores de los campos
-  Stream<String> get nameStream => _nameController.stream;
+  Stream<String> get fullnameStream => _fullnameController.stream;
   Stream<String> get lastNameStream => _lastNameController.stream;
 
-  // Funciones para cambiar los valores de los campos
-  void updateName(String name) => _nameController.sink.add(name);
-  void updateLastName(String lastName) => _lastNameController.sink.add(lastName);
+  String? _currentFullname; // Variable para retener el nombre actual
+  String? _currentLastName; // Variable para retener el apellido actual
 
-  // Cerrar los controladores cuando ya no se necesiten
+  void updateFullname(String fullname) {
+    _currentFullname = fullname; // Actualiza el valor actual
+    _fullnameController.sink.add(fullname);
+  }
+
+  void updateLastName(String lastName) {
+    _currentLastName = lastName; // Actualiza el valor actual
+    _lastNameController.sink.add(lastName);
+  }
+
+  String? getFullname() {
+    return _currentFullname ?? ""; // Devuelve el valor actual
+  }
+
+  String? getLastName() {
+    return _currentLastName ?? ""; // Devuelve el valor actual
+  }
+
   void dispose() {
-    _nameController.close();
+    _fullnameController.close();
     _lastNameController.close();
   }
 }

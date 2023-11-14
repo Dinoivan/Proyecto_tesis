@@ -7,14 +7,17 @@ import 'package:proyecto_tesis/blocs/usuaria_register_bloc.dart';
 class Register extends StatefulWidget {
 
   final RegisterBloc bloc;
-  
-  Register({required this.bloc});
+  final String? fullname; // Añade un campo para el nombre
+  final String? lastname; // Añade un campo para el apellido
+
+  Register({required this.bloc,this.fullname,this.lastname});
 
   @override
   _RegisterState createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+
   @override
   void dispose() {
     widget.bloc.dispose();
@@ -72,8 +75,9 @@ class _RegisterState extends State<Register> {
               ),
               Column(
                 children: <Widget>[
+
                   StreamBuilder<String>(
-                    stream: widget.bloc.nameStream,
+                    stream: widget.bloc.fullnameStream,
                     builder: (context, snapshot) {
                       return TextField(
                         decoration: InputDecoration(
@@ -89,7 +93,7 @@ class _RegisterState extends State<Register> {
                           ),
                           errorText: snapshot.error != null ? snapshot.error.toString() : null,
                         ),
-                        onChanged: widget.bloc.updateName, // Actualizar el valor en el BLoC
+                        onChanged: widget.bloc.updateFullname, // Actualizar el valor en el BLoC
                         obscureText: false,
                         maxLines: 1,
                       );
@@ -135,8 +139,11 @@ class _RegisterState extends State<Register> {
                         child: MaterialButton(
                           height: 50,
                           onPressed: (){
+                            //Actualizar el nombre y apellido en el bloc
+                            widget.bloc.updateFullname(widget.fullname ?? '');
+                            widget.bloc.updateLastName(widget.lastname ?? '');
                             final UsuariaRegisterBloc usuariaBloc = UsuariaRegisterBloc();
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterUsuaria(bloc: usuariaBloc)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterUsuaria(bloc: widget.bloc, usuariaBloc: usuariaBloc,)));
                           },
                           color: Colors.blueAccent, // Color de fondo
                           shape: RoundedRectangleBorder(

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/screems/login.dart';
-import 'package:proyecto_tesis/screems/recuperar_contraseña.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
-import 'package:proyecto_tesis/screems/login.dart';
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController controller;
+
   PasswordFormField({required this.controller});
 
   @override
@@ -13,7 +12,6 @@ class PasswordFormField extends StatefulWidget {
 }
 
 class _PasswordFormFieldState extends State<PasswordFormField> {
-
   bool _obscureText = true;
 
   void _togglePasswordVisibility() {
@@ -91,6 +89,8 @@ class _CambiarContraState extends State<CambiarContra> {
   final TextEditingController _passwordController = TextEditingController();
   String? _verificationCodeError;
   String? _passwordError;
+  String? _email;
+
 
   @override
   void dispose() {
@@ -102,9 +102,34 @@ class _CambiarContraState extends State<CambiarContra> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Atras",
+          style: TextStyle(
+            color: Colors.blueAccent,
+          ),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back,
+            size: 20,
+            color: Colors.blueAccent,),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50.0), // Ajusta la altura según tus necesidades
+          child: Container(), // Agrega un contenedor vacío para ajustar la altura
+        ),
+
+      ),
+
       body: SingleChildScrollView(
         child: Container(
-          alignment: Alignment.center,
+          alignment: Alignment.topCenter,
           constraints: BoxConstraints(
             minHeight: screenHeight,
           ),
@@ -180,8 +205,8 @@ class _CambiarContraState extends State<CambiarContra> {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, ingrese el código de verificación';
                           }
-                          if(value.length>5){
-                            return 'solo se permite ingresar 5 numeros';
+                          if(value.length>6){
+                            return 'solo se permite ingresar 6 numeros';
                           }
                           // Puedes agregar otras validaciones específicas aquí.
                           return null;
@@ -221,14 +246,45 @@ class _CambiarContraState extends State<CambiarContra> {
                         width: double.infinity,
                         height: 50,
                         child: RaisedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState != null && _formKey.currentState!.validate()) {
                               final verificationCode = _verificationCodeController.text;
                               final password = _passwordController.text;
-                              widget.authBloc.login(verificationCode, password);
 
-                              final AuthBloc authBloc = AuthBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc,)));
+                              String? email = "dinosoft1120@gmail.com";
+                              print("email: $email");
+                              if (email != null) { // Comprobar que no sea nulo
+                                final verificationCodeInt = int.tryParse(verificationCode);
+                                if (verificationCodeInt != null) { // Comprobar que se pueda convertir a entero
+                                  String? result = await widget.authBloc.changePassword(email, verificationCodeInt, password);
+                                  if (result != null) {
+                                    final AuthBloc authBloc = AuthBloc();
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc)));
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Contraseña cambiada con éxito.'),
+                                        duration: Duration(seconds: 4),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('El código de verificación debe ser un número válido.'),
+                                      duration: Duration(seconds: 4),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error en la recuperación de datos.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                             else{
                               ScaffoldMessenger.of(context).showSnackBar(
