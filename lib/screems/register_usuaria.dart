@@ -90,9 +90,6 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
   // Nueva instancia de _DateWidget
   final _DateWidget dateWidget = _DateWidget();
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,7 +137,7 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                     height: 5,
                   ),
 
-                  DateWidget(),
+                  DateWidget(birthdayBloc: widget.usuariaBloc,),
 
                   SizedBox(
                     height: 40,
@@ -230,6 +227,11 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
                       String email = _emailController.text;
                       String password = _passwordController.text;
                       String birthdayDate = dateWidget.getSelectedDate();
+                      if (birthdayDate.isEmpty) {
+                        print("Error: sale vacio: $birthdayDate");
+                        return;
+                      }
+                      print("Fecha antes de crear Citizen: $birthdayDate");
 
                       String? fullname = widget.bloc.getFullname();
                       String? lastname = widget.bloc.getLastName();
@@ -310,6 +312,11 @@ class _RegisterUsuariaState extends State<RegisterUsuaria> {
 
 
 class DateWidget extends StatefulWidget{
+
+  final UsuariaRegisterBloc birthdayBloc;
+
+  DateWidget({required this.birthdayBloc});
+
   @override
   State<DateWidget> createState() {
     return _DateWidget();
@@ -322,6 +329,7 @@ class _DateWidget extends State<DateWidget>{
   @override
   void initState() {
     super.initState();
+    birthdayDate = TextEditingController();
   }
 
   String getSelectedDate() {
@@ -347,7 +355,6 @@ class _DateWidget extends State<DateWidget>{
             ),
           ),
           readOnly: true,
-
           onTap: () async {
             DateTime initialDate = DateTime(2000);
             DateTime pickedDate = await showDatePicker(
@@ -359,13 +366,19 @@ class _DateWidget extends State<DateWidget>{
             if(pickedDate != null ){
               print(pickedDate);
               String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-              print(formattedDate);
+              print('Fecha formateada: $formattedDate');
               setState(() {
                 birthdayDate.text = formattedDate;
+                widget.birthdayBloc.updateBirthdayDate(formattedDate);
+                print("Fecha del controlador: $birthdayDate.text");
               });
             }else{
-              print("No ha seleccionado una fecha");
+              print("No ha seleccionado una fecha : ");
             }
+          },
+          onChanged: (newText) {
+            // Actualiza el bloc cuando se cambia el texto (aunque en readOnly)
+            widget.birthdayBloc.updateBirthdayDate(newText);
           },
         )
     );

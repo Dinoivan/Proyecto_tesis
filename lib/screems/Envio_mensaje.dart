@@ -6,6 +6,8 @@ import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/Reporte.dart';
 import 'package:proyecto_tesis/screems/Resultados.dart';
 import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
+import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
+import 'package:proyecto_tesis/screems/Comunidad.dart';
 
 class Enviar extends StatefulWidget {
 
@@ -39,6 +41,7 @@ class _EnviarState extends State<Enviar> {
   ];
 
   void _onItemTapped(int index) {
+    print("Index seleccionado: $index"); // Agrega esta línea para imprimir el índice
     setState(() {
       _selectedIndex = index;
       switch (_selectedIndex) {
@@ -48,19 +51,23 @@ class _EnviarState extends State<Enviar> {
           break;
         case 1:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => HomePage()));
+              MaterialPageRoute(builder: (context) => Contacto()));
           break;
         case 2:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Contacto()));
+              MaterialPageRoute(builder: (context)  => Comunidad()));
           break;
         case 3:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Contacto()));
+              MaterialPageRoute(builder: (context)  => Reporte()));
           break;
         case 4:
           Navigator.push(context,
-          MaterialPageRoute(builder: (context) => Contacto()));
+              MaterialPageRoute(builder: (context)  => Resultado()));
+          break;
+        case 5:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Resultado()));
           break;
         case 6:
           _signOut();
@@ -122,9 +129,10 @@ class _EnviarState extends State<Enviar> {
                   ),
                 ),
                 SizedBox(height: 20.0), // Espacio entre la imagen y el subtítulo
+
                 Image(
-                  image: AssetImage("assets/Google.png"),
-                  width: 370,
+                  image: AssetImage("assets/Ubicación.png"),
+                  width: 300,
                 ),
 
                 SizedBox(height: 20.0), // Espacio entre la imagen y el subtítulo
@@ -188,35 +196,40 @@ class _EnviarState extends State<Enviar> {
             backgroundColor: Colors.blueAccent,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Reserva',
+            icon: Icon(Icons.assignment_ind_rounded),
+            label: 'Agregar',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
+            icon: Icon(Icons.group),
+            label: 'Contactos',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Comunidad',
+            icon: Icon(Icons.receipt),
+            label: 'Emergencia',
+            backgroundColor: Colors.blueAccent,
 
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.help_outline),
-            label: 'Numero de ayuda',
+            label: 'Reporte',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ajustes',
+            label: 'Resultados',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.exit_to_app),
-              label: 'Cerrar'
+            icon: Icon(Icons.exit_to_app),
+            label: 'Cerrar',
+            backgroundColor: Colors.blueAccent,
           ),
         ],
         currentIndex: _selectedIndex,

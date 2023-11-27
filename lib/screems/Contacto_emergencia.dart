@@ -3,12 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
-import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 import 'package:proyecto_tesis/screems/home.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:proyecto_tesis/screems/Resultados.dart';
 import 'package:proyecto_tesis/screems/Reporte.dart';
 import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
+import 'package:proyecto_tesis/services/CitizenService.dart';
+import 'package:proyecto_tesis/screems/Cuestionarios.dart';
+import 'package:proyecto_tesis/screems/Comunidad.dart';
 
 class Emergencia extends StatefulWidget {
 
@@ -24,6 +25,41 @@ class _EmergenciaState extends State<Emergencia> {
   TextEditingController imagenController = TextEditingController();
   final AuthBloc authBloc = AuthBloc();
   int _selectedIndex = 0;
+
+  String? token;
+  List<String>? contactosDeEmergencia;
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamar al servicio para obtener la lista de contactos de emergencia
+    _loadToken();
+  }
+
+    Future<void> _loadToken() async {
+      String? storedToken = await authBloc.getStoredToken();
+      setState(() {
+        token = storedToken;
+      });
+
+      print("Hola soy el token estoy en mis contactos de emergencia: $token");
+      await _getContactosEmergencia();
+    }
+
+  Future<void> _getContactosEmergencia() async {
+    try {
+      // Llamada al servicio desde CitizenService
+      List<String>? contactos = await GetContactEmergencty(token);
+      print("contactos: $contactos");
+
+      setState(() {
+        contactosDeEmergencia = contactos;
+      });
+    } catch (e) {
+      print('Error al obtener contactos de emergencia: $e');
+    }
+  }
+
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -33,7 +69,7 @@ class _EmergenciaState extends State<Emergencia> {
       style: optionStyle,
     ),
     Text(
-      'Index 1: Business',
+      'Index 1: Agregar',
       style: optionStyle,
     ),
     Text(
@@ -47,6 +83,7 @@ class _EmergenciaState extends State<Emergencia> {
   ];
 
   void _onItemTapped(int index) {
+    print("Index seleccionado: $index"); // Agrega esta línea para imprimir el índice
     setState(() {
       _selectedIndex = index;
       switch (_selectedIndex) {
@@ -56,15 +93,23 @@ class _EmergenciaState extends State<Emergencia> {
           break;
         case 1:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => HomePage()));
+              MaterialPageRoute(builder: (context) => Contacto()));
           break;
         case 2:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Reporte()));
+              MaterialPageRoute(builder: (context)  => Comunidad()));
           break;
         case 3:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => HomePage()));
+              MaterialPageRoute(builder: (context)  => Reporte()));
+          break;
+        case 4:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Resultado()));
+          break;
+        case 5:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Cuestionario()));
           break;
         case 6:
           _signOut();
@@ -73,9 +118,11 @@ class _EmergenciaState extends State<Emergencia> {
     });
   }
 
+  // Función para gestionar la salida de la sesión
   void _signOut() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc))); // Reemplaza la pantalla actual con la de inicio de sesión
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +147,7 @@ class _EmergenciaState extends State<Emergencia> {
             color: Colors.blueAccent,),
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(40.0), // Ajusta la altura según tus necesidades
+          preferredSize: Size.fromHeight(10.0), // Ajusta la altura según tus necesidades
           child: Container(), // Agrega un contenedor vacío para ajustar la altura
         ),
 
@@ -143,87 +190,49 @@ class _EmergenciaState extends State<Emergencia> {
                         ),
                       ),
 
-
-                      SizedBox(height: 25),
-                      TextFormField(
-                        controller: nombreController,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          hintText: "Lucía Pérez",
-                          hintStyle: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10.0,
-                          ),
-
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.assignment_turned_in_rounded),
-                            onPressed: () {
-                            },
-                          ),
-                        ),
-                      ),
                       SizedBox(height: 25),
 
-
-                      SizedBox(height: 10),
-
-                      TextFormField(
-                        controller: descripcionController,
+                      // Mostrar la lista de contactos estilizada
+                      if (contactosDeEmergencia != null && contactosDeEmergencia!.isNotEmpty)
+                        Column(
+                          children: contactosDeEmergencia!
+                              .map((nombre) => Container(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blueAccent),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  nombre,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.check_box_rounded,
+                                  color: Colors.blueAccent,
+                                ),
+                              ],
+                            ),
+                          ))
+                              .toList(),
+                        )
+                      else
+                        Text(
+                        'No existen contactos agregados',
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          hintText: "Carlos Espinoza",
-                          hintStyle: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10.0,
-                          ),
-
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.assignment_turned_in_rounded),
-                            onPressed: () {
-                            },
+                          fontSize: 18,
+                          color: Colors.grey,
                           ),
                         ),
-                      ),
 
-                      SizedBox(height: 70,),
+                      SizedBox(height: 25),
+
 
                       SizedBox(
                         width: double.infinity,
@@ -297,35 +306,40 @@ class _EmergenciaState extends State<Emergencia> {
             backgroundColor: Colors.blueAccent,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Reserva',
+            icon: Icon(Icons.assignment_ind_rounded),
+            label: 'Agregar',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
+            icon: Icon(Icons.group),
+            label: 'Contactos',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Comunidad',
+            icon: Icon(Icons.receipt),
+            label: 'Emergencia',
+            backgroundColor: Colors.blueAccent,
 
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.help_outline),
-            label: 'Numero de ayuda',
+            label: 'Reporte',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ajustes',
+            label: 'Resultados',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.exit_to_app),
-              label: 'Cerrar'
+            icon: Icon(Icons.exit_to_app),
+            label: 'Cerrar',
+            backgroundColor: Colors.blueAccent,
           ),
         ],
         currentIndex: _selectedIndex,

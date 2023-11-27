@@ -1,34 +1,43 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:proyecto_tesis/screems/NuevaPublicacion.dart';
+import 'package:proyecto_tesis/screems/Reporte.dart';
 import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 import 'package:proyecto_tesis/screems/home.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:proyecto_tesis/screems/Reporte.dart';
-import 'package:proyecto_tesis/blocs/auth_bloc.dart';
-import 'package:jwt_decode/jwt_decode.dart';
-import 'package:proyecto_tesis/services/PatronesIdentificacion.dart';
+import 'package:proyecto_tesis/screems/Resultados.dart';
+import 'package:proyecto_tesis/models/ReporteUsuaria.dart';
+import 'package:proyecto_tesis/services/ReporteService.dart';
+import 'package:proyecto_tesis/screems/Cuestionarios.dart';
 import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
 import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
-import 'package:proyecto_tesis/screems/Cuestionarios.dart';
+import 'package:proyecto_tesis/screems/NuevaPublicacion.dart';
 import 'package:proyecto_tesis/screems/Comunidad.dart';
 
-class Resultado extends StatefulWidget {
+class Publicacion extends StatefulWidget {
 
-  const Resultado({Key? key}) : super(key: key);
+  const Publicacion({Key? key}) : super(key: key);
 
   @override
-  _ResultadoState createState() => _ResultadoState();
+  _PublicacionState createState() => _PublicacionState();
 }
 
-class _ResultadoState extends State<Resultado> {
+class _PublicacionState extends State<Publicacion> {
   TextEditingController nombreController = TextEditingController();
   TextEditingController descripcionController = TextEditingController();
-  TextEditingController imagenController = TextEditingController();
+  TextEditingController fechaSucesoController = TextEditingController();
   final AuthBloc authBloc = AuthBloc();
   int _selectedIndex = 0;
-  bool _isLoading = true; // Agrega esta variable de estado
+
+  String selectedCategory = 'Tips'; // Valor predeterminado
+
+  List<String> categories = ['Tips', 'Denuncias', 'Anuncios', 'Soporte'];
+
+
+
+
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -93,59 +102,27 @@ class _ResultadoState extends State<Resultado> {
   }
 
 
-  int? userId;
   String? token;
-  String? resultadoP;
 
   @override
   void initState() {
+    super.initState();
+    // Llamar al servicio para obtener la lista de contactos de emergencia
     _loadToken();
   }
 
+
   Future<void> _loadToken() async {
-
-    setState(() {
-      _isLoading = true; // Indica que la información está siendo cargada
-    });
-
-    try{
-
     String? storedToken = await authBloc.getStoredToken();
     setState(() {
       token = storedToken;
-
     });
 
-    if(token!=null){
-      Map<String,dynamic> decodedToken = Jwt.parseJwt(token!);
-      print("Token decodificado: $decodedToken");
+    print("Hola soy el token estoy en mis contactos de emergencia: $token");
 
-      if(decodedToken.containsKey("user_id")){
-        userId = decodedToken["user_id"];
-      }
-    }
-
-    String? resultado = await getReportPrediction(userId, token);
-
-    print("Hola soy el token del navbar: $token");
-    print("Hola soy el id: $userId");
-
-    setState(() {
-      // Puedes guardar el resultado en una variable de estado si quieres utilizarlo en tu interfaz
-      // Por ejemplo:
-      resultadoP = resultado;
-    });
-    }catch(e){
-      print("Error al cargar el token: $e");
-    } finally{
-      setState(() {
-        // Puedes guardar el resultado en una variable de estado si quieres utilizarlo en tu interfaz
-        // Por ejemplo:
-        _isLoading = false;
-      });
-    }
-    // Actualiza el estado para que Flutter repinte la interfaz
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +147,7 @@ class _ResultadoState extends State<Resultado> {
             color: Colors.blueAccent,),
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(40.0), // Ajusta la altura según tus necesidades
+          preferredSize: Size.fromHeight(10.0), // Ajusta la altura según tus necesidades
           child: Container(), // Agrega un contenedor vacío para ajustar la altura
         ),
 
@@ -186,7 +163,7 @@ class _ResultadoState extends State<Resultado> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Nivel de Riesgo',
+                'Nueva Publicacion',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueAccent,
@@ -194,6 +171,19 @@ class _ResultadoState extends State<Resultado> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 20,),
+              Container(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Llena los datos para que tu publicación sea vista en la comunidad:',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                  ),
+                ),
+                width: 350,
+              ),
+
               Form(
 
                 child: Container(
@@ -203,53 +193,155 @@ class _ResultadoState extends State<Resultado> {
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Resultados de identificación de patrones:',
-                          textAlign: TextAlign.center,
+                          'Ingresa el título que deseas:',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 25,
+                            fontSize: 15,
                           ),
                         ),
                       ),
-                      Image(
-                        image: AssetImage("assets/Estadistica.png"),
-                      ),
-
-                      SizedBox(height: 10,),
-
-                      Text(
-                        'Datos estadisticos',
-                        textAlign: TextAlign.center,
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: descripcionController,
                         style: TextStyle(
-                          fontSize:20.0,
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                        maxLines: 1, // Esto permite un número ilimitado de líneas
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          hintText: "Consejos para mantenerte segura en un viaje.",
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10.0,
+                          ),
+
                         ),
                       ),
-
-                      // Muestra el indicador de carga o los resultados según el estado de _isLoading
-                      _isLoading
-                          ? CircularProgressIndicator()
-                          : Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      SizedBox(height: 30),
+                      Container(
+                        alignment: Alignment.centerLeft,
                         child: Text(
-                          '$resultadoP',
-                          textAlign: TextAlign.center,
+                          'Seleccione una categoria:',
                           style: TextStyle(
-                            fontSize: 25.0,
-                            fontWeight: FontWeight.bold,
                             color: Colors.black,
+                            fontSize: 15,
                           ),
                         ),
                       ),
 
-                      SizedBox(height: 40,),
+                      SizedBox(height: 20,),
 
+                      // DropdownButton para seleccionar la categoría
+                      Container(
+                        width: 400,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(0.0),
+                          border: Border.all(color: Colors.black38),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Texto de la categoría al inicio del ancho del contenedor
+
+                            // DropdownButton para seleccionar la categoría
+                            DropdownButton<String>(
+                              value: selectedCategory,
+                              icon: Icon(Icons.arrow_downward),
+                              iconSize: 24,
+                              elevation: 16,
+
+                              style: TextStyle(color: Colors.black),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedCategory = newValue!;
+                                });
+                              },
+                              items: categories.map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: 20,),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Cuentanos:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: descripcionController,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                        maxLines: 1, // Esto permite un número ilimitado de líneas
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          hintText: "Consejos para mantenerte segura en un viaje.",
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10.0,
+                          ),
+
+                        ),
+                      ),
+
+                      SizedBox(height: 40),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: RaisedButton(
                           onPressed: () async {
+
                             Navigator.push(
-                                context, MaterialPageRoute(builder: (context) => Reporte()));
+                              context,
+                              MaterialPageRoute(builder: (context) => Comunidad()),
+                            );
                           },
                           color: Colors.blueAccent,
                           shape: RoundedRectangleBorder(
@@ -258,7 +350,7 @@ class _ResultadoState extends State<Resultado> {
                           ),
                           child: Center(
                             child: Text(
-                              'Ir a Reporte',
+                              'Publicar',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

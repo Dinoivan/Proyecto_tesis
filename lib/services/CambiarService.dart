@@ -2,7 +2,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 Future<String?> Cambiar(String email,String newPassword,int token) async {
-  final String apiUrl = 'http://localhost:8080/api/v1/auth/changePassword';
+  final String apiUrl = 'http://10.0.2.2:8080/api/v1/auth/changePassword';
+
   final Map<String, dynamic>requestBody = {
     "email": email,
     "newPassword": newPassword,
@@ -12,7 +13,7 @@ Future<String?> Cambiar(String email,String newPassword,int token) async {
   try {
     final response = await http.post(Uri.parse(apiUrl),
       headers: {
-         'Autorization': 'Bearer $token',
+         'Authorization': '$token',
          'Content-Type': 'application/json',
       },
       body: json.encode(requestBody),

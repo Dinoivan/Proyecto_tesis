@@ -17,16 +17,19 @@ class _NavBarState extends State<Navbar> {
 
   int? userId;
   String? token;
+  String? firstNameD;
 
   @override
   void initState() {
+    super.initState();
     _loadToken();
-    }
+  }
 
     Future<void> _loadToken() async {
     String? storedToken = await widget.authBloc.getStoredToken();
     setState(() {
       token = storedToken;
+
     });
 
     if(token!=null){
@@ -35,6 +38,7 @@ class _NavBarState extends State<Navbar> {
 
       if(decodedToken.containsKey("user_id")){
         userId = decodedToken["user_id"];
+        _fetchCitizenFirstNameAsync();
       }
     }
 
@@ -42,78 +46,101 @@ class _NavBarState extends State<Navbar> {
     print("Hola soy el id: $userId");
 
   }
-    @override
-    Widget build(BuildContext context) {
 
-      return Container(
-        child: FutureBuilder(
-          future: fecthCitizenFirsName(token,userId),
-              builder: (BuildContext ctx, AsyncSnapshot snapshot) {
-                if (snapshot.data == null) {
-                  return Container();
-                } else {
-                  return Row(
-                    children: [
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.asset(
-                            'assets/seguridad.png', width: 60, height: 70)),
-                    Column(
+  Future<void> _fetchCitizenFirstNameAsync() async {
+    String? fetchedFirstName = await fecthCitizenFirsName(token, userId);
+    if (fetchedFirstName != null) {
+      setState(() {
+        firstNameD = fetchedFirstName;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: FutureBuilder<String?>(
+        // En este punto, la solicitud ya debería haberse realizado si el token y el userId están disponibles
+        future: Future.value(firstNameD),
+        builder: (BuildContext ctx, AsyncSnapshot<String?> snapshot) {
+          if (snapshot.data == null) {
+            return Container();
+          } else {
+            return Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/seguridad.png',
+                    width: 60,
+                    height: 70,
+                  ),
+                ),
+                Column(
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Hola, ',
-                              style: TextStyle(fontSize: 24),
-                            ),
-                            Text(
-                              snapshot.data.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 24),
-                            )
-                          ],
+                        Text(
+                          'Hola, ',
+                          style: TextStyle(fontSize: 24),
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              'Usuaria',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w300),
-                            ),
-                            Text(
-                              ' | ',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w300),
-                            ),
-                            Text(
-                              'Bienvenida',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w300),
-                            ),
-                          ],
+                        Text(
+                          '$firstNameD', // Cambia esto según tus necesidades
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Usuaria',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        Text(
+                          ' | ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        Text(
+                          'Bienvenida',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
                       ],
                     ),
-
-                    Align(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 80),
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.notifications),
-                              iconSize: 32,
-                            ),
-                          )
-                        ],
-                      ),
-                    )
                   ],
-                );
-              }
-            }),
-      );
-    }
+                ),
+                Align(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 80),
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.notifications),
+                          iconSize: 32,
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            );
+          }
+        },
+      ),
+    );
   }
+}
+
 

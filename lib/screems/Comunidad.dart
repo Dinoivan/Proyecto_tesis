@@ -1,48 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:proyecto_tesis/screems/Comunidad.dart';
+import 'package:proyecto_tesis/screems/NuevaPublicacion.dart';
+import 'package:proyecto_tesis/screems/Reporte.dart';
 import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
+import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 import 'package:proyecto_tesis/screems/home.dart';
-import 'package:proyecto_tesis/screems/Reporte.dart';
-import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
-import 'package:proyecto_tesis/models/AgregarContacto.dart';
-import 'package:proyecto_tesis/services/AgregarService.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:proyecto_tesis/screems/Resultados.dart';
+import 'package:proyecto_tesis/models/ReporteUsuaria.dart';
+import 'package:proyecto_tesis/services/ReporteService.dart';
 import 'package:proyecto_tesis/screems/Cuestionarios.dart';
+import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
+import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
+import 'package:proyecto_tesis/screems/NuevaPublicacion.dart';
 
-class Contacto extends StatefulWidget {
+class Comunidad extends StatefulWidget {
 
-  const Contacto({Key? key}) : super(key: key);
+  const Comunidad({Key? key}) : super(key: key);
 
   @override
-  _ContactoState createState() => _ContactoState();
+  _ComunidadState createState() => _ComunidadState();
 }
 
-class _ContactoState extends State<Contacto> {
+class _ComunidadState extends State<Comunidad> {
   TextEditingController nombreController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController relacionController = TextEditingController();
-
+  TextEditingController descripcionController = TextEditingController();
+  TextEditingController fechaSucesoController = TextEditingController();
   final AuthBloc authBloc = AuthBloc();
-
-  String? token;
-
-
-  @override
-  void initState() {
-    _loadToken();
-  }
-
-  Future<void> _loadToken() async {
-    String? storedToken = await authBloc.getStoredToken();
-    setState(() {
-      token = storedToken;
-    });
-
-    print("Hola soy nuevamente el token, $token");
-  }
-
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
@@ -53,7 +38,7 @@ class _ContactoState extends State<Contacto> {
       style: optionStyle,
     ),
     Text(
-      'Index 1: Agregar',
+      'Index 1: Business',
       style: optionStyle,
     ),
     Text(
@@ -108,6 +93,28 @@ class _ContactoState extends State<Contacto> {
   }
 
 
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamar al servicio para obtener la lista de contactos de emergencia
+    _loadToken();
+  }
+
+
+  Future<void> _loadToken() async {
+    String? storedToken = await authBloc.getStoredToken();
+    setState(() {
+      token = storedToken;
+    });
+
+    print("Hola soy el token estoy en mis contactos de emergencia: $token");
+
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -131,7 +138,7 @@ class _ContactoState extends State<Contacto> {
             color: Colors.blueAccent,),
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(40.0), // Ajusta la altura según tus necesidades
+          preferredSize: Size.fromHeight(10.0), // Ajusta la altura según tus necesidades
           child: Container(), // Agrega un contenedor vacío para ajustar la altura
         ),
 
@@ -147,7 +154,7 @@ class _ContactoState extends State<Contacto> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Agregar contactos',
+                'Comunidad',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueAccent,
@@ -155,7 +162,6 @@ class _ContactoState extends State<Contacto> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 25,),
               Form(
 
                 child: Container(
@@ -165,7 +171,7 @@ class _ContactoState extends State<Contacto> {
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Ingresar nombre:',
+                          'Tips:',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -174,11 +180,12 @@ class _ContactoState extends State<Contacto> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
-                        controller: nombreController,
+                        controller: descripcionController,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
                         ),
+                        maxLines: 3, // Esto permite un número ilimitado de líneas
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(2.0),
@@ -192,9 +199,55 @@ class _ContactoState extends State<Contacto> {
                             borderRadius: BorderRadius.circular(2.0),
                             borderSide: BorderSide(color: Colors.blue),
                           ),
-                          hintText: "Ingrese Nombre",
+                          hintText: "Cosas que debes tener en cuenta cuando te encuentras en peligro.",
                           hintStyle: TextStyle(
-                            color: Colors.black38,
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10.0,
+                          ),
+
+                        ),
+                      ),
+
+                      SizedBox(height: 20),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Anuncios:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: descripcionController,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                        maxLines: 5, // Esto permite un número ilimitado de líneas
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          hintText: "Inscribete a la proxima charla de ¿Cómo prevenir la violencia doméstica?",
+                          hintStyle: TextStyle(
+                            color: Colors.black,
                             fontSize: 15,
                           ),
                           contentPadding: EdgeInsets.symmetric(
@@ -203,12 +256,12 @@ class _ContactoState extends State<Contacto> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 25),
 
+                      SizedBox(height: 20),
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Ingrese celular:',
+                          'Denuncias:',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -216,9 +269,8 @@ class _ContactoState extends State<Contacto> {
                         ),
                       ),
                       SizedBox(height: 10),
-
                       TextFormField(
-                        controller: phoneController,
+                        controller: fechaSucesoController,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -236,54 +288,9 @@ class _ContactoState extends State<Contacto> {
                             borderRadius: BorderRadius.circular(2.0),
                             borderSide: BorderSide(color: Colors.blue),
                           ),
-                          hintText: "+51967534879",
+                          hintText: "Denuncia por acoso",
                           hintStyle: TextStyle(
-                            color: Colors.black38,
-                            fontSize: 15,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10.0,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 25,),
-
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Relacion familiar:',
-                          style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-
-                      TextFormField(
-                        controller: relacionController,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          hintText: "Ingrese su relacion con el contacto",
-                          hintStyle: TextStyle(
-                            color: Colors.black38,
                             fontSize: 15,
                           ),
                           contentPadding: EdgeInsets.symmetric(
@@ -295,52 +302,60 @@ class _ContactoState extends State<Contacto> {
 
 
                       SizedBox(height: 40),
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Soporte  :',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: fechaSucesoController,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          hintText: "Tengo problemas con mi anillo",
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10.0,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 40),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: RaisedButton(
                           onPressed: () async {
 
-                            try {
-                              // Llama al servicio para agregar el contacto
-                              ContactoEmergencia nuevoContacto = ContactoEmergencia(
-                                fullname: nombreController.text,
-                                phonenumber: phoneController.text,
-                                relationship: relacionController.text,
-                              );
-
-                              String? resultado = await Agregar(nuevoContacto, token);
-                              print("Hola soy nuevamente el token, $resultado");
-
-                              if(resultado!=null){
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => Emergencia()),
-                                );
-
-                                print("Hola soy nuevamente el token de agregar contacto, $token");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Contacto agregado correctamente.'),
-                                    duration: Duration(seconds: 4),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-
-                            }catch(e){
-                              print("Hola soy nuevamente el token, $token");
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('No se pudo agregar contacto vuelve a intentarlo.'),
-                                  duration: Duration(seconds: 4),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-
-                            }
-
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Publicacion()),
+                            );
                           },
                           color: Colors.blueAccent,
                           shape: RoundedRectangleBorder(
@@ -349,7 +364,7 @@ class _ContactoState extends State<Contacto> {
                           ),
                           child: Center(
                             child: Text(
-                              'Guardar',
+                              'Crear Publicación',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -401,20 +416,20 @@ class _ContactoState extends State<Contacto> {
 
           BottomNavigationBarItem(
             icon: Icon(Icons.help_outline),
-            label: 'Numero de ayuda',
+            label: 'Reporte',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ajustes',
+            label: 'Resultados',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.exit_to_app),
-              label: 'Cerrar',
-              backgroundColor: Colors.blueAccent,
+            icon: Icon(Icons.exit_to_app),
+            label: 'Cerrar',
+            backgroundColor: Colors.blueAccent,
           ),
         ],
         currentIndex: _selectedIndex,

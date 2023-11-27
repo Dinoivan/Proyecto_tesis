@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class Citizen{
   final bool active;
   final String alias;
-  final String birthdayDate;
+  final String? birthdayDate;
   final String email;
   final String firstname;
   final String? fullname;

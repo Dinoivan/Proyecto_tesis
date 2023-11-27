@@ -6,6 +6,12 @@ import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 import 'package:proyecto_tesis/screems/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:proyecto_tesis/screems/Resultados.dart';
+import 'package:proyecto_tesis/models/ReporteUsuaria.dart';
+import 'package:proyecto_tesis/services/ReporteService.dart';
+import 'package:proyecto_tesis/screems/Cuestionarios.dart';
+import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
+import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
+import 'package:proyecto_tesis/screems/Comunidad.dart';
 
 class Reporte extends StatefulWidget {
 
@@ -18,7 +24,7 @@ class Reporte extends StatefulWidget {
 class _ReporteState extends State<Reporte> {
   TextEditingController nombreController = TextEditingController();
   TextEditingController descripcionController = TextEditingController();
-  TextEditingController imagenController = TextEditingController();
+  TextEditingController fechaSucesoController = TextEditingController();
   final AuthBloc authBloc = AuthBloc();
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
@@ -44,6 +50,7 @@ class _ReporteState extends State<Reporte> {
   ];
 
   void _onItemTapped(int index) {
+    print("Index seleccionado: $index"); // Agrega esta línea para imprimir el índice
     setState(() {
       _selectedIndex = index;
       switch (_selectedIndex) {
@@ -53,15 +60,23 @@ class _ReporteState extends State<Reporte> {
           break;
         case 1:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => HomePage()));
+              MaterialPageRoute(builder: (context) => Contacto()));
           break;
         case 2:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Reporte()));
+              MaterialPageRoute(builder: (context)  => Comunidad()));
           break;
         case 3:
           Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Reporte()));
+          break;
+        case 4:
+          Navigator.push(context,
               MaterialPageRoute(builder: (context)  => Resultado()));
+          break;
+        case 5:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Cuestionario()));
           break;
         case 6:
           _signOut();
@@ -70,8 +85,60 @@ class _ReporteState extends State<Reporte> {
     });
   }
 
+  // Función para gestionar la salida de la sesión
   void _signOut() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(authBloc: authBloc))); // Reemplaza la pantalla actual con la de inicio de sesión
+  }
+
+
+  String? token;
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamar al servicio para obtener la lista de contactos de emergencia
+    _loadToken();
+  }
+
+
+  Future<void> _loadToken() async {
+    String? storedToken = await authBloc.getStoredToken();
+    setState(() {
+      token = storedToken;
+    });
+
+    print("Hola soy el token estoy en mis contactos de emergencia: $token");
+
+  }
+
+
+  Future<void> _submitReport() async {
+    try {
+      // Crear un objeto Report con los datos del formulario
+      Report report = Report(
+        createdDate: DateTime.now().toIso8601String(),
+        description: descripcionController.text,
+        name: nombreController.text,
+        reportStatus: 'Archivado',
+        reportingDate: fechaSucesoController.text,
+      );
+
+      // Obtener el token del AuthBloc o de donde lo estés almacenand
+
+      // Llamar al servicio para guardar el reporte
+      await saveReport(report, token);
+
+      // Mostrar un mensaje de éxito (puedes usar un SnackBar)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reporte guardado exitosamente.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      // Manejar errores aquí
+      print("Error al guardar el reporte: $e");
+    }
   }
 
   @override
@@ -97,7 +164,7 @@ class _ReporteState extends State<Reporte> {
             color: Colors.blueAccent,),
         ),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(40.0), // Ajusta la altura según tus necesidades
+          preferredSize: Size.fromHeight(10.0), // Ajusta la altura según tus necesidades
           child: Container(), // Agrega un contenedor vacío para ajustar la altura
         ),
 
@@ -216,17 +283,16 @@ class _ReporteState extends State<Reporte> {
                         Container(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Imagen:',
+                            'Fecha del suceso:',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 15,
                             ),
                           ),
                         ),
-
                         SizedBox(height: 10),
                         TextFormField(
-                          controller: imagenController,
+                          controller: fechaSucesoController,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -244,7 +310,7 @@ class _ReporteState extends State<Reporte> {
                               borderRadius: BorderRadius.circular(2.0),
                               borderSide: BorderSide(color: Colors.blue),
                             ),
-                            hintText: "Ingrese imagen",
+                            hintText: "2023-11-17",
                             hintStyle: TextStyle(
                               color: Colors.black38,
                               fontSize: 15,
@@ -253,26 +319,6 @@ class _ReporteState extends State<Reporte> {
                               horizontal: 10,
                               vertical: 10.0,
                             ),
-
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.camera),
-                              onPressed: () async {
-                                final picker = ImagePicker();
-                                final pickedFile = await picker.pickImage(
-                                  source: ImageSource.gallery,  // Cambia a ImageSource.camera si quieres usar la cámara
-                                );
-
-                                if (pickedFile != null) {
-                                  // La imagen se seleccionó correctamente.
-                                  // Ahora, puedes usar pickedFile.path para acceder a la ruta de la imagen.
-                                  String imagePath = pickedFile.path;
-                                  imagenController.text = imagePath;
-                                } else {
-                                  // El usuario canceló la selección de la imagen.
-                                }
-                              },
-                            ),
-
                           ),
                         ),
 
@@ -282,7 +328,12 @@ class _ReporteState extends State<Reporte> {
                           height: 50,
                           child: RaisedButton(
                             onPressed: () async {
+                              _submitReport();
 
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => Cuestionario()),
+                              );
                             },
                             color: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
@@ -323,35 +374,40 @@ class _ReporteState extends State<Reporte> {
             backgroundColor: Colors.blueAccent,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Reserva',
+            icon: Icon(Icons.assignment_ind_rounded),
+            label: 'Agregar',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
+            icon: Icon(Icons.group),
+            label: 'Contactos',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Comunidad',
+            icon: Icon(Icons.receipt),
+            label: 'Emergencia',
+            backgroundColor: Colors.blueAccent,
 
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.help_outline),
-            label: 'Numero de ayuda',
+            label: 'Reporte',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ajustes',
+            label: 'Resultados',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.exit_to_app),
-              label: 'Cerrar'
+            icon: Icon(Icons.exit_to_app),
+            label: 'Cerrar',
+            backgroundColor: Colors.blueAccent,
           ),
         ],
         currentIndex: _selectedIndex,

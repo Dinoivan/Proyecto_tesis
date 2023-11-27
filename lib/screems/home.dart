@@ -9,6 +9,9 @@ import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
 import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:proyecto_tesis/services/EnvioContactosEmergencia.dart';
+import 'package:proyecto_tesis/screems/Cuestionarios.dart';
+import 'package:proyecto_tesis/screems/PalabraClave.dart';
+import 'package:proyecto_tesis/screems/Comunidad.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -69,7 +72,7 @@ class _HomePageState extends State<HomePage> {
       style: optionStyle,
     ),
     Text(
-      'Index 1: Business',
+      'Index 1: Agregar',
       style: optionStyle,
     ),
     Text(
@@ -83,6 +86,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   void _onItemTapped(int index) {
+    print("Index seleccionado: $index"); // Agrega esta línea para imprimir el índice
     setState(() {
       _selectedIndex = index;
       switch (_selectedIndex) {
@@ -96,11 +100,19 @@ class _HomePageState extends State<HomePage> {
           break;
         case 2:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Emergencia()));
+              MaterialPageRoute(builder: (context)  => Comunidad()));
           break;
         case 3:
           Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Reporte()));
+          break;
+        case 4:
+          Navigator.push(context,
               MaterialPageRoute(builder: (context)  => Resultado()));
+          break;
+        case 5:
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context)  => Cuestionario()));
           break;
         case 6:
           _signOut();
@@ -157,11 +169,10 @@ class _HomePageState extends State<HomePage> {
 
                       if(token!=null){
 
-                        _toggleAlertButton();
-
                         String? resultado = await EnviarEnlace(userId, token);
                         print("Hola soy el resultado del home, $resultado");
                         if(resultado!=null){
+                          _toggleAlertButton();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => Enviar())); // Reemplaza la pantalla actual co
 
                           print("Hola soy nuevamente el token, $token");
@@ -229,7 +240,34 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              SizedBox(height: 30),
+              SizedBox(
+                width:300,
+                height: 50,
+                child: RaisedButton(
+                  onPressed: () async {
 
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context)  => Clave()));
+
+                  },
+                  color: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    side: BorderSide(color: Colors.black12),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Agregar palabra clave',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
             ],
           ),
@@ -244,35 +282,40 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.blueAccent,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Reserva',
+            icon: Icon(Icons.assignment_ind_rounded),
+            label: 'Agregar',
             backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
+            icon: Icon(Icons.group),
+            label: 'Contactos',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Comunidad',
+            icon: Icon(Icons.receipt),
+            label: 'Emergencia',
+            backgroundColor: Colors.blueAccent,
 
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.help_outline),
-            label: 'Numero de ayuda',
+            label: 'Reporte',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Ajustes',
+            label: 'Resultados',
+            backgroundColor: Colors.blueAccent,
 
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.exit_to_app),
-              label: 'Cerrar'
+              label: 'Cerrar',
+            backgroundColor: Colors.blueAccent,
           ),
         ],
         currentIndex: _selectedIndex,

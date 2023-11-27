@@ -4,7 +4,7 @@ import'dart:convert';
 
 Future<String?> fecthCitizenFirsName(String? token,int? id) async {
   final response = await http
-      .get(Uri.parse('http://localhost:8080/api/v1/citizen/getCitizenById/$id'),
+      .get(Uri.parse('http://10.0.2.2:8080/api/v1/citizen/getCitizenById/$id'),
       headers: {
         'Authorization': '$token',
       });
@@ -15,6 +15,26 @@ Future<String?> fecthCitizenFirsName(String? token,int? id) async {
     }
   }
   return null;
+}
+
+
+Future<List<String>?> GetContactEmergencty(String? token) async{
+try{
+  final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/v1/emergencyContacts/getAllEmergencyContactsByCitizenId'),
+      headers: {
+        'Authorization': '$token',
+      });
+  if(response.statusCode == 200){
+    var responseData = json.decode(response.body);
+    if(responseData is List && responseData.isNotEmpty){
+      var fullname = responseData.map((contact) => contact['fullname']).toList();
+      print("Datos: $fullname");
+      return fullname.cast<String>();
+    }
+  }
+  }catch(e){
+    return null;
+  }
 }
 
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:proyecto_tesis/models/Registro_models.dart';
 
 Future<void> saveCitizen(Citizen citizen) async {
-  final url = Uri.parse('http://localhost:8080/api/v1/citizen/saveCitizen');
+  final url = Uri.parse('http://10.0.2.2:8080/api/v1/citizen/saveCitizen');
 
   try{
     final response = await  http.post(url,

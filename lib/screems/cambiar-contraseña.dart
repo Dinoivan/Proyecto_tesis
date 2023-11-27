@@ -87,9 +87,10 @@ class _CambiarContraState extends State<CambiarContra> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _verificationCodeController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   String? _verificationCodeError;
   String? _passwordError;
-  String? _email;
+  String? _emailError;
 
 
   @override
@@ -251,7 +252,7 @@ class _CambiarContraState extends State<CambiarContra> {
                               final verificationCode = _verificationCodeController.text;
                               final password = _passwordController.text;
 
-                              String? email = "dinosoft1120@gmail.com";
+                              String? email = "antoniojfb01@gmail.com";
                               print("email: $email");
                               if (email != null) { // Comprobar que no sea nulo
                                 final verificationCodeInt = int.tryParse(verificationCode);

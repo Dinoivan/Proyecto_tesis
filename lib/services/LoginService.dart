@@ -8,7 +8,7 @@ Future<String?> loginService(String email, String password) async {
 
   try {
     final response = await http.post(
-      Uri.parse('http://localhost:8080/api/v1/auth/login'),
+      Uri.parse('http://10.0.2.2:8080/api/v1/auth/login'),
       headers: {
         'Content-Type': 'application/json',
       },

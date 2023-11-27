@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:proyecto_tesis/models/AgregarContacto.dart';
 
 Future<String?> Agregar(ContactoEmergencia contactoEmergencia,String? token) async {
-  final String apiUrl = 'http://localhost:8080/api/v1/emergencyContacts/saveEmergencyContacts';
+  final String apiUrl = 'http://10.0.2.2:8080/api/v1/emergencyContacts/saveEmergencyContacts';
   final Map<String, dynamic>requestBody = contactoEmergencia.toJson();
 
   try {
