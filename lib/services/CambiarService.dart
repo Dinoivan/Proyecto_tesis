@@ -1,8 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> Cambiar(String email,String newPassword,int token) async {
-  final String apiUrl = 'http://10.0.2.2:8080/api/v1/auth/changePassword';
+  final String apiUrl = '${ApiConfig.baseUrl}/v1/auth/changePassword';
 
   final Map<String, dynamic>requestBody = {
     "email": email,

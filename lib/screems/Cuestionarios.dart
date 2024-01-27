@@ -151,25 +151,22 @@ class _CuestionarioState extends State<Cuestionario> {
     print('selectedOptionIndex: $selectedOptionIndex');
     print('respuestaAbiertaController.text: ${respuestaAbiertaController.text}');
     // Realizar trabajo asíncrono fuera del setState
-    //0 < 7
-    //0 1 2 3 4 5 6
-    if (preguntaActualIndex < preguntas!.length - 1) {
+
+    if (preguntaActualIndex < preguntas!.length) {
       if (preguntaActualIndex == 1 || preguntaActualIndex == 2) {
         await _guardarRespuesta(
           preguntas![preguntaActualIndex].id, 0, respuestaAbiertaController.text,
         );
       } else {
-
-        //Lógica para la pregunta 4
-        if(preguntaActualIndex == 3 && selectedOptionIndex == 1){
+        // Lógica para la pregunta 4
+        if (preguntaActualIndex == 3 && selectedOptionIndex == 1) {
           preguntaActualIndex = 4;
           await _guardarRespuesta(
             preguntas![preguntaActualIndex].id,
             preguntas![preguntaActualIndex].options[selectedOptionIndex!].id,
             "",
           );
-        } else{
-
+        } else {
           await _guardarRespuesta(
             preguntas![preguntaActualIndex].id,
             preguntas![preguntaActualIndex].options[selectedOptionIndex!].id,
@@ -177,18 +174,24 @@ class _CuestionarioState extends State<Cuestionario> {
           );
         }
       }
+
       preguntaActualIndex++;
-        print("Contador: $preguntaActualIndex");
-        print("Total: ${preguntas!.length}");
-        print("Hola");
+      print("Contador: $preguntaActualIndex");
+      print("Total: ${preguntas!.length}");
+      print("Hola");
+      print("Hola como estas");
       selectedOptionIndex = null;
       respuestaAbiertaController.clear();
-      }else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Resultado()),
-      );
-      print("Fin del cuestionario");
+
+
+      // Verificar si se debe navegar a la pantalla Resultado
+      if (preguntaActualIndex == 7) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Resultado()),
+        );
+        print("Fin del cuestionario");
+      }
     }
 
     // Actualizar el estado sin código asíncrono
@@ -227,7 +230,7 @@ class _CuestionarioState extends State<Cuestionario> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cuestionario'),
+        title: Text('Atras'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

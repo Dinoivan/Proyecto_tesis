@@ -361,7 +361,7 @@ class _DateWidget extends State<DateWidget>{
                 context: context,
                 initialDate: initialDate,
                 firstDate: DateTime(1942),
-                lastDate: DateTime(2023)
+                lastDate: DateTime(2024)
             ) as DateTime;
             if(pickedDate != null ){
               print(pickedDate);

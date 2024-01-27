@@ -1,6 +1,7 @@
 import 'package:proyecto_tesis/models/Login_models.dart';
 import 'package:http/http.dart' as http;
 import'dart:convert';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> loginService(String email, String password) async {
 
@@ -8,7 +9,7 @@ Future<String?> loginService(String email, String password) async {
 
   try {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8080/api/v1/auth/login'),
+      Uri.parse('${ApiConfig.baseUrl}/v1/auth/login'),
       headers: {
         'Content-Type': 'application/json',
       },

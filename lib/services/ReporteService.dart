@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_tesis/models/ReporteUsuaria.dart';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<void> saveReport(Report report, String? token) async {
-  final String apiUrl = 'http://10.0.2.2:8080/api/v1/report/saveReport';
+  final String apiUrl = '${ApiConfig.baseUrl}/v1/report/saveReport';
 
   try {
     final response = await http.post(

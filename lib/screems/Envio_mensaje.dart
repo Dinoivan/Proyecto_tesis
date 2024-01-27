@@ -8,6 +8,7 @@ import 'package:proyecto_tesis/screems/Resultados.dart';
 import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
 import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
 import 'package:proyecto_tesis/screems/Comunidad.dart';
+import 'package:proyecto_tesis/screems/Compartir-ubicación.dart';
 
 class Enviar extends StatefulWidget {
 
@@ -182,10 +183,41 @@ class _EnviarState extends State<Enviar> {
                     ),
                   ),
                 ),
+
+                SizedBox(height: 30),
+                SizedBox(
+                  width:300,
+                  height: 50,
+                  child: RaisedButton(
+                    onPressed: () async {
+
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context)  => Compartir_Ubicacion()));
+
+                    },
+                    color: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: Colors.black12),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Ver contactos compartidos',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
               ],
             ),
           ),
         ),
+
 
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

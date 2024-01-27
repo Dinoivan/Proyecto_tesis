@@ -3,6 +3,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:proyecto_tesis/services/CitizenService.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 import 'dart:async';
+import 'package:proyecto_tesis/screems/Perfil.dart';
 
 class Navbar extends StatefulWidget {
   final AuthBloc authBloc; // Agrega una propiedad para el AuthBloc
@@ -68,12 +69,17 @@ class _NavBarState extends State<Navbar> {
           } else {
             return Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    'assets/seguridad.png',
-                    width: 60,
-                    height: 70,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Perfil()));
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/seguridad.png',
+                      width: 60,
+                      height: 70,
+                    ),
                   ),
                 ),
                 Column(

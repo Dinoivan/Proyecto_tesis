@@ -1,10 +1,11 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> recuperarContrasena(String email) async {
   try {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8080/api/v1/auth/requestPasswordChange/$email'),
+      Uri.parse('${ApiConfig.baseUrl}/v1/auth/requestPasswordChange/$email'),
       headers: {
         'Content-Type': 'application/json',
       },

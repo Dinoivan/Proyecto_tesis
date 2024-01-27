@@ -163,7 +163,7 @@ class _PublicacionState extends State<Publicacion> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Nueva Publicacion',
+                'Ayuda Profesional',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueAccent,
@@ -173,9 +173,9 @@ class _PublicacionState extends State<Publicacion> {
               ),
               SizedBox(height: 20,),
               Container(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.center,
                 child: Text(
-                  'Llena los datos para que tu publicación sea vista en la comunidad:',
+                  'Ingresa al siguiente link:',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -185,153 +185,47 @@ class _PublicacionState extends State<Publicacion> {
               ),
 
               Form(
-
                 child: Container(
                   padding: EdgeInsets.all(30),
                   child: Column(
                     children: <Widget>[
                       Container(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.center,
                         child: Text(
-                          'Ingresa el título que deseas:',
+                          '¿Cómo prevenir casos de violencia doméstica?',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: 20,
                           ),
+                          textAlign: TextAlign.justify,
                         ),
+                        width: 350,
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 5),
                       TextFormField(
                         controller: descripcionController,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
                         ),
-                        maxLines: 1, // Esto permite un número ilimitado de líneas
+                        maxLines: 3,
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          hintText: "Consejos para mantenerte segura en un viaje.",
+                          // Elimina el borde
+                          border: InputBorder.none,
+                          // Cambia el color del texto a azul
+                          hintText: 'https://us04web.zoom.us/j/71161604725?pwd=uwL44mXTVMtFvn8TjFmqLJplEAkNjb.1',
                           hintStyle: TextStyle(
-                            color: Colors.black,
+                            color: Colors.blue,
                             fontSize: 15,
                           ),
-
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 10.0,
                           ),
-
-                        ),
-                      ),
-                      SizedBox(height: 30),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Seleccione una categoria:',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
                         ),
                       ),
 
-                      SizedBox(height: 20,),
-
-                      // DropdownButton para seleccionar la categoría
-                      Container(
-                        width: 400,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(0.0),
-                          border: Border.all(color: Colors.black38),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 5.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Texto de la categoría al inicio del ancho del contenedor
-
-                            // DropdownButton para seleccionar la categoría
-                            DropdownButton<String>(
-                              value: selectedCategory,
-                              icon: Icon(Icons.arrow_downward),
-                              iconSize: 24,
-                              elevation: 16,
-
-                              style: TextStyle(color: Colors.black),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedCategory = newValue!;
-                                });
-                              },
-                              items: categories.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 20,),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Cuentanos:',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        controller: descripcionController,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                        maxLines: 1, // Esto permite un número ilimitado de líneas
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.black26),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2.0),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          hintText: "Consejos para mantenerte segura en un viaje.",
-                          hintStyle: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10.0,
-                          ),
-
-                        ),
-                      ),
-
-                      SizedBox(height: 40),
+                      SizedBox(height: 5),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -350,7 +244,7 @@ class _PublicacionState extends State<Publicacion> {
                           ),
                           child: Center(
                             child: Text(
-                              'Publicar',
+                              'Ir a vista principal',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

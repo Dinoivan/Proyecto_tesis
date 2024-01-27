@@ -29,7 +29,6 @@ class AuthBloc {
     return token;
   }
 
-
   Future<void> _saveTokenToShareddPreferences(String token) async {
     //Obtiene una instancia de SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,7 +55,6 @@ class AuthBloc {
       print("Error al enviar codigo de verificación al correo: $email");
     }
     return email;
-
   }
 
   Future<String?> changePassword(String email,int verificationCode, String newPassword) async {

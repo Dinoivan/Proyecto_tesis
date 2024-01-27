@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> getReportPrediction(int? id, String? token) async {
-  final String apiUrl = 'http://10.0.2.2:8080/api/v1/pattern-recognition/getReportPrediction';
+  final String apiUrl = '${ApiConfig.baseUrl}/v1/pattern-recognition/getReportPrediction';
 
   try {
     final response = await http.post(Uri.parse(apiUrl),

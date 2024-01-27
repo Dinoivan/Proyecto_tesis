@@ -1,9 +1,11 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:proyecto_tesis/models/AgregarContacto.dart';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
+//Servicio para agregar contactos de emergencia
 Future<String?> Agregar(ContactoEmergencia contactoEmergencia,String? token) async {
-  final String apiUrl = 'http://10.0.2.2:8080/api/v1/emergencyContacts/saveEmergencyContacts';
+  final String apiUrl = '${ApiConfig.baseUrl}/v1/emergencyContacts/saveEmergencyContacts';
   final Map<String, dynamic>requestBody = contactoEmergencia.toJson();
 
   try {

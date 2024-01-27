@@ -1,7 +1,8 @@
 import 'package:http/http.dart' as http;
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> EnviarEnlace(int? userId,String? token) async {
-  final String apiUrl = 'http://10.0.2.2:8080/api/v1/citizen/activateEmergencyBtn/$userId';
+  final String apiUrl = '${ApiConfig.baseUrl}/v1/citizen/activateEmergencyBtn/$userId';
   try {
     final response = await http.get(Uri.parse(apiUrl),
       headers: {

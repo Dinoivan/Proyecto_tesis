@@ -6,14 +6,14 @@ import 'package:proyecto_tesis/screems/login.dart';
 import 'package:proyecto_tesis/blocs/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/cambiar-contraseña.dart';
 import 'package:proyecto_tesis/screems/home.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:proyecto_tesis/screems/Resultados.dart';
 import 'package:proyecto_tesis/models/ReporteUsuaria.dart';
 import 'package:proyecto_tesis/services/ReporteService.dart';
 import 'package:proyecto_tesis/screems/Cuestionarios.dart';
-import 'package:proyecto_tesis/screems/Agregar_contacto.dart';
 import 'package:proyecto_tesis/screems/Contacto_emergencia.dart';
 import 'package:proyecto_tesis/screems/NuevaPublicacion.dart';
+
+import 'Agregar_contacto.dart';
+import 'Resultados.dart';
 
 class Comunidad extends StatefulWidget {
 
@@ -154,7 +154,7 @@ class _ComunidadState extends State<Comunidad> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                'Comunidad',
+                'Ayuda profesional',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.blueAccent,
@@ -231,7 +231,7 @@ class _ComunidadState extends State<Comunidad> {
                           color: Colors.black,
                           fontSize: 20,
                         ),
-                        maxLines: 5, // Esto permite un número ilimitado de líneas
+                        maxLines: 2, // Esto permite un número ilimitado de líneas
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(2.0),
@@ -261,7 +261,7 @@ class _ComunidadState extends State<Comunidad> {
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Denuncias:',
+                          'Evento:',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -288,7 +288,7 @@ class _ComunidadState extends State<Comunidad> {
                             borderRadius: BorderRadius.circular(2.0),
                             borderSide: BorderSide(color: Colors.blue),
                           ),
-                          hintText: "Denuncia por acoso",
+                          hintText: "¿Cómo prevenir la violencia doméstica ?",
                           hintStyle: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -300,13 +300,11 @@ class _ComunidadState extends State<Comunidad> {
                         ),
                       ),
 
-
-                      SizedBox(height: 40),
-
+                      SizedBox(height: 20),
                       Container(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Soporte  :',
+                          'Ponente:',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -333,7 +331,7 @@ class _ComunidadState extends State<Comunidad> {
                             borderRadius: BorderRadius.circular(2.0),
                             borderSide: BorderSide(color: Colors.blue),
                           ),
-                          hintText: "Tengo problemas con mi anillo",
+                          hintText: "Iván Pérez",
                           hintStyle: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -344,6 +342,50 @@ class _ComunidadState extends State<Comunidad> {
                           ),
                         ),
                       ),
+
+                      SizedBox(height: 20),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Fecha:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: fechaSucesoController,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.black26),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2.0),
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          hintText: "20/11/2023",
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10.0,
+                          ),
+                        ),
+                      ),
+
 
                       SizedBox(height: 40),
                       SizedBox(
@@ -364,7 +406,7 @@ class _ComunidadState extends State<Comunidad> {
                           ),
                           child: Center(
                             child: Text(
-                              'Crear Publicación',
+                              'Ingresar al evento',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

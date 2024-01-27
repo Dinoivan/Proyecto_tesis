@@ -12,6 +12,7 @@ import 'package:proyecto_tesis/services/EnvioContactosEmergencia.dart';
 import 'package:proyecto_tesis/screems/Cuestionarios.dart';
 import 'package:proyecto_tesis/screems/PalabraClave.dart';
 import 'package:proyecto_tesis/screems/Comunidad.dart';
+import 'package:proyecto_tesis/screems/Perfil.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -112,7 +113,7 @@ class _HomePageState extends State<HomePage> {
           break;
         case 5:
           Navigator.push(context,
-              MaterialPageRoute(builder: (context)  => Cuestionario()));
+              MaterialPageRoute(builder: (context)  => Perfil()));
           break;
         case 6:
           _signOut();

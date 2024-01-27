@@ -1,10 +1,11 @@
 import 'package:proyecto_tesis/models/Citizen_models.dart';
 import 'package:http/http.dart' as http;
 import'dart:convert';
+import 'package:proyecto_tesis/enviorement/configuration.dart';
 
 Future<String?> fecthCitizenFirsName(String? token,int? id) async {
   final response = await http
-      .get(Uri.parse('http://10.0.2.2:8080/api/v1/citizen/getCitizenById/$id'),
+      .get(Uri.parse('${ApiConfig.baseUrl}/v1/citizen/getCitizenById/$id'),
       headers: {
         'Authorization': '$token',
       });
