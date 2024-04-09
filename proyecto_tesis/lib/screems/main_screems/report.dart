@@ -1,0 +1,526 @@
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:proyecto_tesis/main.dart';
+import 'package:proyecto_tesis/screems/main_screems/profile.dart';
+import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
+import 'package:proyecto_tesis/screems/main_screems/test.dart';
+import 'package:proyecto_tesis/models/screems/report_model.dart';
+import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
+import '../../services/sreems/report_service.dart';
+import 'emergency_contacts.dart';
+import 'home.dart';
+
+
+class DateWidget extends StatefulWidget{
+
+  final RegisterBloc birthdayBloc;
+
+  DateWidget({required this.birthdayBloc});
+
+  @override
+  State<DateWidget> createState(){
+    return _DateWidgetState();
+  }
+}
+
+class _DateWidgetState extends State<DateWidget>{
+  TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState(){
+    super.initState();
+
+    String? currentBirthdayDate = widget.birthdayBloc.getCurrentBirthday();
+    if(currentBirthdayDate != null){
+      _dateController.text = currentBirthdayDate;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return TextFormField(
+      controller: _dateController,
+      decoration: InputDecoration(
+        suffixIcon: Icon(Icons.calendar_today,color: Colors.black,),
+        labelText: _dateController.text.isEmpty ? "Seleccione fecha de suceso": "",
+        hintText: _dateController.text.isEmpty ? "": "Seleccione fecha de suceso",
+        labelStyle:TextStyle(fontSize: 15.0, color: Colors.black),
+        hintStyle:TextStyle(
+            color: Colors.black,
+            fontSize:15.0
+        ),
+        border: OutlineInputBorder(
+          borderRadius:BorderRadius.circular(5),
+          borderSide: BorderSide(color: Colors.black26,width: 2.0),
+        ),
+        focusedBorder:OutlineInputBorder(
+          borderSide:BorderSide(color: Colors.black26,width: 2.0),
+          borderRadius:BorderRadius.circular(5),
+
+        ),
+      ),
+      readOnly: true,
+      onTap: () async{
+        DateTime inicialDate = DateTime.now().toLocal();
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: inicialDate,
+          firstDate: DateTime(1942),
+          lastDate: DateTime(2025),
+        );
+        if(pickedDate!=null){
+          String formmatedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+          widget.birthdayBloc.updateBirthdayDate(formmatedDate);
+          setState(() {
+            _dateController.text = formmatedDate;
+
+          });
+        }
+      },
+      keyboardType: TextInputType.datetime,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, ingrese fecha de suceso';
+        }
+
+        return null;
+      },
+    );
+  }
+}
+
+class Report extends StatefulWidget{
+
+  final RegisterBloc registerBloc;
+  
+  Report({required this.registerBloc});
+  
+  @override
+  _ReportState createState() => _ReportState();
+
+}
+
+class _ReportState extends State<Report>{
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _fechaController = TextEditingController();
+
+
+  ScrollController _scrollController = ScrollController();
+  bool _isLoading = false;
+
+  String? token;
+
+
+int _selectedIndex = 3;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+
+      _updateIconColors();
+
+      switch (_selectedIndex) {
+        case 0:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Home(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
+        case 1:
+          final AuthBloc authBloc = AuthBloc();
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Profile(authBloc: authBloc),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
+        case 2:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => EmergencyContacts(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
+        case 3:
+          final RegisterBloc registerBloc = RegisterBloc();
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Report(registerBloc: registerBloc,),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
+      }
+    });
+  }
+
+  // Actualizar los colores de los íconos basados en el índice seleccionado
+  void _updateIconColors() {
+    setState(() {
+      // Restaurar el color predeterminado para todos los íconos
+      _iconColors = List<Color>.filled(5, Colors.grey[700]!);
+      // Actualizar el color del ícono seleccionado
+      _iconColors[_selectedIndex] = Colors.blue;
+    });
+  }
+
+  List<Color?> _iconColors = [
+    Colors.blue, // Home
+    Colors.grey[700], // Mi perfil
+    Colors.grey[700], // Contactos
+    Colors.grey[700], // Reportes
+    Colors.grey[700], // Configura
+  ];
+
+
+  @override
+  void initState(){
+    _loadToken();
+  }
+
+  Future<void> _loadToken() async {
+    String? storedToken = await authBloc.getStoraredToken();
+    setState(() {
+      token = storedToken;
+    });
+  }
+
+  Future<void> _submitReport() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      String birthdayDate = widget.registerBloc.getCurrentBirthday()!;
+      DateTime parsedDate = DateFormat('dd/MM/yyyy').parse(birthdayDate);
+      String formattedBirthdayDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+      // Crear un objeto Report con los datos del formulario
+      Report_ report = Report_(
+        createdDate: DateTime.now().toIso8601String(),
+        description: _descriptionController.text,
+        name: _nameController.text,
+        reportStatus: 'Archivado',
+        reportingDate: formattedBirthdayDate,
+      );
+
+      // Obtener el token del AuthBloc o de donde lo estés almacenand
+
+      // Llamar al servicio para guardar el reporte
+      await saveReport(report, token);
+
+    } catch (e) {
+      // Manejar errores aquí
+      print("Error al guardar el reporte: $e");
+    }finally{
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context){
+    double screenHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+
+      appBar: AppBar(
+        title: Text(""),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => Home(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+              ),
+            );
+          },
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+        ),
+      ),
+
+      body: SingleChildScrollView(
+        child: Container(
+          alignment: Alignment.topCenter,
+          constraints: BoxConstraints(
+            minHeight: screenHeight,
+          ),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+
+                Container(
+                  padding: EdgeInsets.fromLTRB(30, 0, 10, 30),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Generar reporte',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                Form(
+                  key: _formKey,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _nameController,
+                          style: TextStyle(
+                            color:Colors.black,
+                            fontSize:15,
+                          ),
+                          decoration: InputDecoration(
+                            border:OutlineInputBorder(
+                              borderRadius:BorderRadius.circular(5.0),
+                              borderSide: BorderSide(color: Colors.black26, width: 2.0),
+                            ),
+                            enabledBorder:OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(color: Colors.black26,width: 2.0),
+                            ),
+                            focusedBorder:OutlineInputBorder(
+                              borderRadius:BorderRadius.circular(5.0),
+                              borderSide: BorderSide(color: Colors.black26,width: 2.0),
+                            ),
+                            labelText: _nameController.text.isEmpty ? "Nombre" : "",
+                            labelStyle: const TextStyle(
+                              color: Colors.black,
+                            ),
+                            hintText: _nameController.text.isEmpty ? "": " Nombre",
+                            helperStyle: const TextStyle(
+                              color: Colors.black12,
+                              fontSize: 15,
+                            ),
+                          ),
+                          keyboardType: TextInputType.text,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+
+                              return 'Por favor, ingrese su nombre';
+                            }
+                            final RegExp letterRegex = RegExp(r'[a-zA-Z]');
+                            if(!letterRegex.hasMatch(value)){
+                              return 'Solo se permiten palabras';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 20,),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Descripción de los hechos:',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child:TextFormField(
+                              controller: _descriptionController,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 15.0,
+                              ),
+                              maxLines: 5, // Esto permite un número ilimitado de líneas
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(2.0),
+                                  borderSide: BorderSide(color: Colors.black26),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(2.0),
+                                  borderSide: BorderSide(color: Colors.black26),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(2.0),
+                                  borderSide: BorderSide(color: Colors.black26),
+                                ),
+
+                                hintText: "Ingrese la descripción",
+                                hintStyle: TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 15.0,
+                                ),
+                              ),
+                              keyboardType: TextInputType.text,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'por favor, ingrese descripcion de reporte';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20,),
+                        DateWidget(birthdayBloc: widget.registerBloc),
+
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 60),
+                        ),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed:() {
+                              if(_formKey.currentState != null && _formKey.currentState!.validate()){
+
+                                _submitReport();
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) => Test(),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    transitionDuration: Duration(milliseconds: 5),
+                                  ),
+                                );
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Se guardo con exito el reporte'),
+                                    duration: Duration(seconds: 4),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+
+                              }
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
+                              overlayColor: MaterialStateProperty.resolveWith<Color>((states){
+                                if(states.contains(MaterialState.disabled)){
+                                  return Colors.grey.withOpacity(0.5);
+                                }
+                                return Colors.transparent;
+                              }),
+                              shape: MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0))
+                              ),
+
+
+                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.symmetric(vertical:10.0),
+                              ),
+
+                            ),
+
+                            child: _isLoading ? CircularProgressIndicator() :  Text(
+                              'Guardar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                              ),
+                            ),
+
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                ),
+
+              ]
+
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        iconSize: 35,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon:Icon(Icons.home_filled),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Mi perfil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: 'Contactos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.insert_comment_outlined),
+            label: 'Reportes',
+
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Configura',
+          ),
+
+        ],
+        currentIndex: _selectedIndex,
+        unselectedItemColor: Colors.grey[700],
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
