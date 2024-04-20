@@ -105,6 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
           }),
         );
 
+        //Si la solicitud del servicio responde 200 procede a enviar respuesta
         if (response.statusCode == 200) {
           // Extrae el texto generado por ChatGPT de la respuesta y decodifica los caracteres especiales
           final data = jsonDecode(response.body);
