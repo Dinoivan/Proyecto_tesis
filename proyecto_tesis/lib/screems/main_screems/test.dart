@@ -192,7 +192,7 @@ class _TestState extends State<Test>{
                 ),
 
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 70),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 55),
                 ),
 
                 Form(

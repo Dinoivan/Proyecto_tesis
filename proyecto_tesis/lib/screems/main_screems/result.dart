@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
 import '../../blocs/register/register_bloc.dart';
@@ -23,8 +24,8 @@ class RiskCircularChart extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width*0.9,
-            height:MediaQuery.of(context).size.width*0.9,
+            width: MediaQuery.of(context).size.width*0.3,
+            height:MediaQuery.of(context).size.width*0.3,
             child: PieChart(
               PieChartData(
                 sections: _getSections(mediaQuery: MediaQuery.of(context)),
@@ -40,13 +41,13 @@ class RiskCircularChart extends StatelessWidget {
   }
 
   List<PieChartSectionData> _getSections({required MediaQueryData mediaQuery}) {
-    double chartSize = mediaQuery.size.width * 0.9;
-    double sectionRadius = chartSize / 2 -40;
+    double chartSize = mediaQuery.size.width * 0.2;
+    double sectionRadius = chartSize / 2 -20;
     return [
       PieChartSectionData(
         value: 10,
         color: riskColors[0], // Usar el color correspondiente al primer riesgo
-        title: 'Bajo riesgo <= 10%',
+        title: '',
         titleStyle: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -57,7 +58,7 @@ class RiskCircularChart extends StatelessWidget {
       PieChartSectionData(
           value: 20,
           color: riskColors[1], // Usar el color correspondiente al segundo riesgo
-          title: 'Riesgo moderado <= 30%',
+          title: '',
           titleStyle: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -68,7 +69,7 @@ class RiskCircularChart extends StatelessWidget {
       PieChartSectionData(
           value: 20,
           color: riskColors[2], // Usar el color correspondiente al tercer riesgo
-          title: 'Riesgo alto <= 50%',
+          title: '',
           titleStyle: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -79,7 +80,7 @@ class RiskCircularChart extends StatelessWidget {
       PieChartSectionData(
           value: 20,
           color: riskColors[3], // Usar el color correspondiente al cuarto riesgo
-          title: 'Riesgo muy alto <= 70%',
+          title: '',
           titleStyle: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -90,7 +91,7 @@ class RiskCircularChart extends StatelessWidget {
       PieChartSectionData(
         value: 30,
         color: riskColors[4], // Usar el color correspondiente al quinto riesgo
-        title: 'Riesgo extremo >70%',
+        title: '',
         titleStyle: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -123,7 +124,7 @@ class _ResultState extends State<Result> {
   // Definir una lista de colores correspondientes a cada riesgo
   final List<Color> _riskColors = [
     Colors.green,
-    Colors.yellow,
+    Colors.lightBlue,
     Colors.orange,
     Colors.red,
     Colors.purple,
@@ -239,6 +240,21 @@ class _ResultState extends State<Result> {
             ),
           );
           break;
+        case 4:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Configuration(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
       }
     });
   }
@@ -321,6 +337,15 @@ class _ResultState extends State<Result> {
     // Actualiza el estado para que Flutter repinte la interfaz
   }
 
+  // Lista de riesgos con sus respectivos porcentajes predeterminados
+  List<RiskData> riskDataList = [
+    RiskData('Riesgo Bajo', 10),
+    RiskData('Riesgo Moderado', 30),
+    RiskData('Riesgo Alto', 50),
+    RiskData('Riesgo Muy Alto', 70),
+    RiskData('Riesgo Extremo', 100),
+  ];
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -351,24 +376,22 @@ class _ResultState extends State<Result> {
 
       body: SingleChildScrollView(
         child: Container(
-          alignment: Alignment.topCenter,
+          alignment: Alignment.topLeft,
           constraints: BoxConstraints(
             minHeight: screenHeight,
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Text(
                 'Nivel de Riesgo',
-                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 30.0,
+                  fontSize: 25.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Form(
-
                 child: Container(
                   padding: EdgeInsets.all(30),
                   child: Column(
@@ -377,18 +400,19 @@ class _ResultState extends State<Result> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Conoce los resultados del test de identificación de patrones:',
-                          textAlign: TextAlign.center,
+                          textAlign: TextAlign.justify,
                           style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
+                            color: Color(0xFFCA4A4A4),
+                            fontSize: 15.0,
                           ),
                         ),
                       ),
+                      SizedBox(height: 10.0,),
 
                       // Reemplazar la imagen con RiskChart
                        RiskCircularChart(
                           risk: riesgo ?? '',
-                          percentage: porcentaje !=null ? double.parse(porcentaje!.replaceAll('%', '')) / 100: 0.0,
+                          percentage: porcentaje !=null ? double.parse(porcentaje!.replaceAll('%', '')) / 100.0: 0.0,
                           riskColors: _riskColors,
                         ),
 
@@ -409,6 +433,7 @@ class _ResultState extends State<Result> {
                                   color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))),// Obtén el color correspondiente al riesgo
                               ),
                             ),
+
                             if(porcentaje != null && riesgo != null)
                               Text(
                                 '$riesgo',
@@ -419,8 +444,48 @@ class _ResultState extends State<Result> {
                                   color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))), // Obtén el color correspondiente al riesgo
                               ),
                             ),
+
+                            if(porcentaje == null && riesgo == null)
+                              Text('Error de servicio', textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 25.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,// Obtén el color correspondiente al riesgo
+                                ),
+                              ),
                           ],
                         ),
+                      ),
+                      Column(
+                        children: riskDataList.map((riskData) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                border: Border.all(color: Colors.grey[200] ?? Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    riskData.risk,
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    '<= ${riskData.value}%',
+                                    style: TextStyle(fontWeight: FontWeight.bold,
+                                    color: _getRiskColor(riskData.value.toDouble()
+                                    ),
+                                   ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),

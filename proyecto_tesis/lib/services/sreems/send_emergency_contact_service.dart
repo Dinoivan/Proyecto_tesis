@@ -4,7 +4,7 @@ import 'package:proyecto_tesis/models/screems/ubicacation_model.dart';
 
 import 'dart:convert';
 
-Future<Emergency> EnviarEnlace(int? userId,UbicationURL ubicationURL ,String? token) async {
+Future<Emergency> EnviarEnlace(int? userId,UbicationURL ubicationURL, String? token) async {
   final String apiUrl = '${ApiConfig.baseUrl}/v1/citizen/activateEmergencyBtn/$userId';
 
   try {

@@ -9,6 +9,7 @@ import '../../services/autentication/password_change_service.dart';
 
 class AuthBloc {
 
+  String? _token;
 
   Future<int?> login(String email, String password) async {
     LoginResponse response = await loginService(email, password);
@@ -47,6 +48,21 @@ class AuthBloc {
     }else{
       throw Exception("Error");
     }
+  }
+
+  // Método para verificar si el usuario está autenticado
+  Future<bool> isAuthenticated() async {
+    // Si el token ya está guardado en la instancia, el usuario está autenticado
+    if (_token != null) {
+      return true;
+    }
+    // Si no, verifica si hay un token almacenado en SharedPreferences
+    String? storedToken = await getStoraredToken();
+    if (storedToken != null) {
+      _token = storedToken;
+      return true;
+    }
+    return false; // Si no hay token almacenado, el usuario no está autenticado
   }
 
 }

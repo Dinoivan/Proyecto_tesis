@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/models/screems/keyword_model.dart';
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
+import 'package:proyecto_tesis/screems/modals/editKeyword.dart';
 import 'package:proyecto_tesis/services/sreems/keyword_service.dart';
-
 import '../../blocs/register/register_bloc.dart';
 import 'emergency_contacts.dart';
 import 'home.dart';
@@ -23,6 +24,8 @@ class _KeyWordState extends State<KeyWord>{
   bool _isLoading = false;
 
   String? token;
+  String? keyword;
+
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -94,6 +97,23 @@ class _KeyWordState extends State<KeyWord>{
             ),
           );
           break;
+
+        case 4:
+
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Configuration(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
       }
     });
   }
@@ -128,8 +148,29 @@ class _KeyWordState extends State<KeyWord>{
       token = storedToken;
     });
 
+    await _getKeyword();
+
   }
 
+  Future<void> _getKeyword() async{
+    try{
+      setState(() {
+        _isLoading = true;
+      });
+
+      getKeywordCitizen? palabraClave = await getKeyWordService(token);
+      setState(() {
+        keyword = palabraClave?.keyword;
+        _keywordController.text = keyword ?? "";
+      });
+    }catch(e){
+      print("Error al obtener palabra clave: $e");
+    }finally{
+      setState(() {
+        _isLoading = false;
+      });
+  }
+  }
 
   @override
   Widget build(BuildContext context){
@@ -158,190 +199,214 @@ class _KeyWordState extends State<KeyWord>{
       ),
 
 
-      body: SingleChildScrollView(
-        child: Container(
-          alignment: Alignment.topCenter,
-          constraints: BoxConstraints(
-            minHeight: screenHeight,
-          ),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
+        body: SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.topCenter,
+            constraints: BoxConstraints(
+              minHeight: screenHeight,
+            ),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
 
-                Container(
-                  margin: EdgeInsets.only(left: 30.0,top: 10.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Ingrese palabra clave',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25.0,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    margin: EdgeInsets.only(left: 30.0,top: 10.0),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      keyword == null ? 'Ingrese palabra clave': 'Palabra clave actual',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                Form(
-                  key: _formKey,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 30,horizontal: 30),
-                    child: Column(
-                      children: <Widget>[
-                        TextFormField(
-                          controller: _keywordController,
-                          style: TextStyle(
-                            color:Colors.black,
-                            fontSize:15,
-                          ),
-                          decoration: InputDecoration(
-                            border:OutlineInputBorder(
-                              borderRadius:BorderRadius.circular(5.0),
-                              borderSide: BorderSide(color: Colors.black26, width: 2.0),
+                  Form(
+                    key: _formKey,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 30,horizontal: 30),
+                      child: Column(
+                        children: <Widget>[
+                          TextFormField(
+                            controller: _keywordController,
+                            readOnly: keyword == null ? false : true,
+                            style: TextStyle(
+                              color:Colors.black,
+                              fontSize:15,
                             ),
-                            enabledBorder:OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                              borderSide: BorderSide(color: Colors.black26,width: 2.0),
+                            decoration: InputDecoration(
+                              border:OutlineInputBorder(
+                                borderRadius:BorderRadius.circular(5.0),
+                                borderSide: BorderSide(color: Colors.black26, width: 2.0),
+                              ),
+                              enabledBorder:OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                                borderSide: BorderSide(color: Colors.black26,width: 2.0),
+                              ),
+                              focusedBorder:OutlineInputBorder(
+                                borderRadius:BorderRadius.circular(5.0),
+                                borderSide: BorderSide(color: Colors.black26,width: 2.0),
+                              ),
+                              labelText: _keywordController.text.isEmpty ? " Palabra clave": "",
+                              labelStyle: const TextStyle(
+                                color: Colors.black,
+                              ),
+                              hintText: _keywordController.text.isEmpty ? "": " Palabra clase",
+                              helperStyle: const TextStyle(
+                                color: Colors.black12,
+                                fontSize: 15,
+                              ),
+                              fillColor: keyword!=null ? Colors.grey[200]: null,
+                              filled: keyword!=null,
                             ),
-                            focusedBorder:OutlineInputBorder(
-                              borderRadius:BorderRadius.circular(5.0),
-                              borderSide: BorderSide(color: Colors.black26,width: 2.0),
-                            ),
-                            labelText: _keywordController.text.isEmpty ? " Palabra clave": "",
-                            labelStyle: const TextStyle(
-                              color: Colors.black,
-                            ),
-                            hintText: _keywordController.text.isEmpty ? "": " Palabra clase",
-                            helperStyle: const TextStyle(
-                              color: Colors.black12,
-                              fontSize: 15,
-                            ),
-                          ),
-                          keyboardType: TextInputType.text,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            keyboardType: TextInputType.text,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
 
-                              return 'Por favor, ingrese la palabra clave';
-                            }
-                            final RegExp letterRegex = RegExp(r'[a-zA-Z]');
-                            if(!letterRegex.hasMatch(value)){
-                              return 'Solo se permiten palabras';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 200),
-                        ),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                          if(_formKey.currentState != null && _formKey.currentState!.validate()){
-
-                              final palabraclave = _keywordController.text;
-
-                              setState(() {
-                                _isLoading = true;
-                              });
-
-                              try{
-                                KeywordResponse response =  await keywordService(palabraclave, token);
-
-                                if(response.statusCode == 200 && token!=null){
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation, secondaryAnimation) => Home(),
-                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        );
-                                      },
-                                      transitionDuration: Duration(milliseconds: 5),
-                                    ),
-                                  );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Se agrego correctamente la palabra clave.'),
-                                      duration: Duration(seconds: 4),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-
-                                }else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Sucedio un error vuelve a intentar.'),
-                                      duration: Duration(seconds: 4),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-
-                              }catch(e){
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Sucedio un error en el servicio.'),
-                                    duration: Duration(seconds: 4),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-
-                              }finally{
-                                setState(() {
-                                  _isLoading = false;
-                                });
-
+                                return 'Por favor, ingrese la palabra clave';
                               }
-
-                            }
-
+                              final RegExp letterRegex = RegExp(r'[a-zA-Z]');
+                              if(!letterRegex.hasMatch(value)){
+                                return 'Solo se permiten palabras';
+                              }
+                              return null;
                             },
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
-                              overlayColor: MaterialStateProperty.resolveWith<Color>((states){
-                                if(states.contains(MaterialState.disabled)){
-                                  return Colors.grey.withOpacity(0.5);
+                          ),
+
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 197),
+                          ),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if(_formKey.currentState != null && _formKey.currentState!.validate()){
+
+                                  final palabraclave = _keywordController.text;
+
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+
+                                  try{
+                                    if(keyword == null){
+                                      KeywordResponse response =  await keywordService(palabraclave, token);
+
+                                      if(response.statusCode == 200 && token!=null){
+                                        await _getKeyword();
+                                        Navigator.pushReplacement(
+                                          context,
+                                          PageRouteBuilder(
+                                            pageBuilder: (context, animation, secondaryAnimation) => Home(),
+                                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                              return FadeTransition(
+                                                opacity: animation,
+                                                child: child,
+                                              );
+                                            },
+                                            transitionDuration: Duration(milliseconds: 5),
+                                          ),
+                                        );
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Se agrego correctamente la palabra clave.'),
+                                            duration: Duration(seconds: 4),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+
+                                      }else{
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Sucedio un error vuelve a intentar.'),
+                                            duration: Duration(seconds: 4),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+
+                                    }else if(keyword!=null){
+
+                                      //Si exite palabra clave existente, muestra el modal de edición
+                                      String? keywordCitizenUpdate = await  showDialog(
+                                          context: context,
+                                          builder: (BuildContext context){
+                                            return EditKeywordModal(palabraClave: keyword);
+                                          },
+                                      );
+
+                                    if(keywordCitizenUpdate != null){
+                                      await _getKeyword();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Palabra clave modificado correctamente.'),
+                                          duration: Duration(seconds: 4),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    }
+                                    }
+                                  }catch(e){
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Sucedio un error en el servicio.'),
+                                        duration: Duration(seconds: 4),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+
+                                  }finally{
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+
+                                  }
+
                                 }
-                                return Colors.transparent;
-                              }),
-                              shape: MaterialStateProperty.all<OutlinedBorder>(
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0))
+
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
+                                overlayColor: MaterialStateProperty.resolveWith<Color>((states){
+                                  if(states.contains(MaterialState.disabled)){
+                                    return Colors.grey.withOpacity(0.5);
+                                  }
+                                  return Colors.transparent;
+                                }),
+                                shape: MaterialStateProperty.all<OutlinedBorder>(
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0))
+                                ),
+
+
+                                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                  EdgeInsets.symmetric(vertical:15.0),
+                                ),
+
                               ),
 
-
-                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(vertical:15.0),
-                              ),
-
-                            ),
-
-                            child: _isLoading ? CircularProgressIndicator() :  Text(
-                              'Guardar',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18.0,
+                              child: _isLoading && keyword ==null ? CircularProgressIndicator() :  Text(
+                                keyword == null ? 'Guardar' : 'Editar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18.0,
+                                ),
                               ),
                             ),
                           ),
-
-                        ),
-
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-              ]
+                ]
 
+            ),
           ),
         ),
-      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         iconSize: 35,

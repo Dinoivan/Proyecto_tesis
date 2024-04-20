@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/models/screems/ubicacation_model.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
@@ -13,7 +14,6 @@ import 'home.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:proyecto_tesis/services/sreems/send_emergency_contact_service.dart';
-import 'package:proyecto_tesis/models/screems/ubicacation_model.dart';
 
 
 class SendLocation extends StatefulWidget{
@@ -27,8 +27,12 @@ class _SendLocationState extends State<SendLocation>{
 
   StreamSubscription<Position>? _positionStreamSubscription;
 
+
   double? latitude;
   double? longitud;
+  Position? previousPosition;
+
+  String? address = '';
 
   int? userId;
   String? token;
@@ -54,6 +58,9 @@ class _SendLocationState extends State<SendLocation>{
     _stopSendingLocation();
   }
 
+
+
+
   Future<void> _startSendingLocation() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if(permission == LocationPermission.denied){
@@ -63,16 +70,50 @@ class _SendLocationState extends State<SendLocation>{
     _positionStreamSubscription = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 1,
-    ).listen((Position position){
+    ).listen((Position position) async{
       if(mounted) {
         setState(() {
           latitude = position.latitude;
           longitud = position.longitude;
         });
+
+        address = await _getAddressFromCoordinates(latitude!, longitud!);
+        if(address != null) {
+          // Si se obtiene una dirección válida, actualizarla en el estado del widget
+          setState(() {
+            address = address;
+          });
+        }
+        //Obtener la dirección correspondiente a las coordenas
+
         String googleMapsLink = getGoogleMapsLink(); // Obtener el enlace de Google Maps con las coordenadas más recientes
         _sendLocation(googleMapsLink); // Pasar el enlace de Google Maps a _sendLocation()
       }
     });
+  }
+
+  Future<String> _getAddressFromCoordinates(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        String street = placemark.thoroughfare ?? ''; // Nombre de la calle
+        String numero = placemark.street ?? '';
+        String subLocality = placemark.subLocality ?? ''; // Sublocalidad o barrio
+        String locality = placemark.locality ?? ''; // Localidad o ciudad
+        String administrativeArea = placemark.administrativeArea ?? ''; // Área administrativa (estado, provincia, región, etc.)
+        String country = placemark.country ?? ''; // País
+        String postalCode = placemark.postalCode ?? ''; // Código postal
+
+        // Construir la dirección con los datos disponibles
+        return '$street, $numero, $subLocality, $locality, $administrativeArea, $country, $postalCode';
+      } else {
+        return 'Dirección no disponible';
+      }
+    } catch (e) {
+      print("Error al obtener la dirección: $e");
+      return 'Error al obtener la dirección';
+    }
   }
 
   String getGoogleMapsLink(){
@@ -99,7 +140,13 @@ class _SendLocationState extends State<SendLocation>{
 
   Future<void>_sendLocation(String googleMapsLink) async {
     print("Enlace generado desde send: $googleMapsLink");
-    UbicationURL  ubicationURL = UbicationURL(url: googleMapsLink);
+    String  addres = await _getAddressFromCoordinates(latitude!, longitud!);
+    if(addres == null || addres.isEmpty){
+      addres = 'Dirección no disponible';
+    }
+    UbicationURL  ubicationURL = UbicationURL(
+        dir: addres,
+        url: googleMapsLink);
     Emergency resultado = await EnviarEnlace(userId, ubicationURL, token);
     print("Resultado: ${resultado.statusCode}");
   }
@@ -319,14 +366,14 @@ class _SendLocationState extends State<SendLocation>{
                                         fontWeight: FontWeight.bold,
                                         fontSize: 20.0,
                                       ),
-                                    ),
-                                    TextSpan(
+                                    ),TextSpan(
                                       text: " en tiempo real.",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 20.0,
                                       ),
                                     ),
+
                                   ],
                                 ),
                               ),
@@ -344,6 +391,7 @@ class _SendLocationState extends State<SendLocation>{
                     padding: EdgeInsets.all(30),
                     child: Column(
                       children: <Widget>[
+
 
                         const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 180),

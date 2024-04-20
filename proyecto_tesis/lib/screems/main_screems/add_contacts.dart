@@ -8,7 +8,6 @@ import 'package:proyecto_tesis/models/screems/add_contacts_model.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
 import 'package:proyecto_tesis/services/sreems/add_contacts_service.dart';
-
 import 'home.dart';
 
 class AddContacts extends StatefulWidget{
@@ -19,11 +18,13 @@ class AddContacts extends StatefulWidget{
 }
 
 class _AddContactsState extends State<AddContacts>{
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _celularController = TextEditingController();
   final TextEditingController _relacionController = TextEditingController();
 
   final AuthBloc authBloc = AuthBloc();
+  bool _isLoading = false;
 
   String? token;
 
@@ -186,6 +187,7 @@ class _AddContactsState extends State<AddContacts>{
                 ),
 
                 Form(
+                  key: _formKey,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 30),
                     child: Column(
@@ -210,12 +212,30 @@ class _AddContactsState extends State<AddContacts>{
                               borderRadius:BorderRadius.circular(5.0),
                               borderSide: BorderSide(color: Colors.black26,width: 2.0),
                             ),
-                            hintText: " Nombre",
+                            labelText: _nameController.text.isEmpty ? "Nombre": "",
+                            labelStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.0,
+                            ),
+                            hintText: _nameController.text.isEmpty ? " ": "Nombre",
                             helperStyle: const TextStyle(
-                              color: Colors.black12,
-                              fontSize: 15,
+                              color: Colors.black,
+                              fontSize: 15.0,
                             ),
                           ),
+                          keyboardType: TextInputType.text,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+
+                              return 'Por favor, ingrese su nombre';
+                            }
+                            final RegExp letterRegex = RegExp(r'[a-zA-Z]');
+                            if(!letterRegex.hasMatch(value)){
+                              return 'Solo se permiten palabras';
+                            }
+                            return null;
+                          },
                         ),
 
                         SizedBox(height: 20,),
@@ -238,12 +258,33 @@ class _AddContactsState extends State<AddContacts>{
                               borderRadius:BorderRadius.circular(5.0),
                               borderSide: BorderSide(color: Colors.black26,width: 2.0),
                             ),
-                            hintText: " Celular",
+                            labelText: _celularController.text.isEmpty ? "Celular": "",
+                            labelStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.0,
+                            ),
+                            hintText: _celularController.text.isNotEmpty ? " ": "Celular",
                             helperStyle: const TextStyle(
-                              color: Colors.black12,
-                              fontSize: 15,
+                              color: Colors.black,
+                              fontSize: 15.0,
                             ),
                           ),
+                          keyboardType: TextInputType.number,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor, ingrese el celular';
+                            }
+                            final RegExp numericRegex = RegExp(r'^[0-9]+$');
+                            if (!numericRegex.hasMatch(value)) {
+                              return 'Ingrese sólo números';
+                            }
+                            if(value.length != 9){
+                              return 'El número telefónico solo debe tener 9 dijitos';
+                            }
+
+                            return null;
+                          },
                         ),
 
                         SizedBox(height: 20,),
@@ -266,12 +307,30 @@ class _AddContactsState extends State<AddContacts>{
                               borderRadius:BorderRadius.circular(5.0),
                               borderSide: BorderSide(color: Colors.black26,width: 2.0),
                             ),
-                            hintText: " Relación familiar",
+                            labelText: _relacionController.text.isEmpty ? "Relación familiar": "",
+                            labelStyle: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 15.0,
+                            ),
+                            hintText: _relacionController.text.isEmpty ? " ": "Relación familar",
                             helperStyle: const TextStyle(
-                              color: Colors.black12,
-                              fontSize: 15,
+                              color: Colors.black,
+                              fontSize: 15.0,
                             ),
                           ),
+                          keyboardType: TextInputType.text,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+
+                              return 'Por favor, ingrese la relación familiar';
+                            }
+                            final RegExp letterRegex = RegExp(r'[a-zA-Z]');
+                            if(!letterRegex.hasMatch(value)){
+                              return 'Solo se permiten palabras';
+                            }
+                            return null;
+                          },
                         ),
 
                         const Padding(
@@ -283,64 +342,90 @@ class _AddContactsState extends State<AddContacts>{
                           height: 55,
                           child: ElevatedButton(
                             onPressed: () async {
+                                if(_formKey.currentState != null && _formKey.currentState!.validate()) {
 
-                              try {
-                                // Llama al servicio para agregar el contacto
-                                ContactoEmergencia nuevoContacto = ContactoEmergencia(
-                                  fullname: _nameController.text,
-                                  phonenumber: _celularController.text,
-                                  relationship: _relacionController.text,
-                                );
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
 
-                                AddContactsResponse response = await Agregar(nuevoContacto, token);
-                                final message = response.message;
-                                print("Hola soy nuevamente el token, $token");
 
-                                if(response.statusCode == 200 && token!=null){
+                                  String celular = _celularController.text;
 
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation, secondaryAnimation) => EmergencyContacts(),
-                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        );
-                                      },
-                                      transitionDuration: Duration(milliseconds: 5),
-                                    ),
-                                  );
+                                  String celularConPrefijo = '+51$celular';
 
-                                  print("Hola soy nuevamente el token de agregar contacto, $token");
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Contacto agregado correctamente.'),
-                                      duration: Duration(seconds: 4),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                }else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Error al guardar contacto vuelve a intentarlo'),
-                                      duration: Duration(seconds: 4),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                  try {
+                                    // Llama al servicio para agregar el contacto
+                                    ContactoEmergencia nuevoContacto = ContactoEmergencia(
+                                      fullname: _nameController.text,
+                                      phonenumber: celularConPrefijo,
+                                      relationship: _relacionController.text,
+                                    );
 
-                                }
+                                    AddContactsResponse response = await Agregar(
+                                        nuevoContacto, token);
+                                    final message = response.message;
+                                    print(
+                                        "Hola soy nuevamente el token, $token");
 
-                              }catch(e){
-                                print("Hola soy nuevamente el token, $token");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('No se pudo agregar contacto vuelve a intentarlo.'),
-                                    duration: Duration(seconds: 4),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                                    if (response.statusCode == 200 &&
+                                        token != null) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                              EmergencyContacts(),
+                                          transitionsBuilder: (context,
+                                              animation, secondaryAnimation,
+                                              child) {
+                                            return FadeTransition(
+                                              opacity: animation,
+                                              child: child,
+                                            );
+                                          },
+                                          transitionDuration: Duration(
+                                              milliseconds: 5),
+                                        ),
+                                      );
 
+                                      print(
+                                          "Hola soy nuevamente el token de agregar contacto, $token");
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Contacto agregado correctamente.'),
+                                          duration: Duration(seconds: 4),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Error al guardar contacto vuelve a intentarlo'),
+                                          duration: Duration(seconds: 4),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    print(
+                                        "Hola soy nuevamente el token, $token");
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'No se pudo agregar contacto vuelve a intentarlo.'),
+                                        duration: Duration(seconds: 4),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }finally{
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                  }
                               }
 
                             },
@@ -363,16 +448,13 @@ class _AddContactsState extends State<AddContacts>{
 
                             ),
 
-                            child: const Center(
-                              child: Text(
-                                'Guardar',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
-                                ),
+                            child: _isLoading ? CircularProgressIndicator() :  Text(
+                              'Guardar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
                               ),
-
                             ),
 
                           ),

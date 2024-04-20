@@ -37,3 +37,21 @@ Report_({
     };
   }
 }
+
+class ReportResponse{
+  final int statusCode;
+
+  ReportResponse({required this.statusCode});
+
+  factory ReportResponse.fromJson(Map<String,dynamic>json){
+    return ReportResponse(
+      statusCode: json['statusCode'],
+    );
+  }
+}
+
+
+
+
+
+

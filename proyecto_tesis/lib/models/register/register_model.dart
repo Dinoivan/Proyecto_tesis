@@ -35,6 +35,30 @@ class Citizen{
   }
 }
 
+
+class CitizenUpdate{
+  final String birthdayDate;
+  final String email;
+  final String firstname;
+  final String lastname;
+
+  CitizenUpdate(
+      {
+        required this.birthdayDate,
+        required this.email,
+        required this.firstname,
+        required this.lastname,});
+
+  Map<String,dynamic> toJson(){
+    return{
+      'birthdayDate': birthdayDate,
+      'email': email,
+      'firstname': firstname,
+      'lastname': lastname,
+    };
+  }
+}
+
 class CitizenResponse{
   final int statusCode;
   final String message;

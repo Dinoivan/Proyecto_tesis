@@ -1,4 +1,3 @@
-
 class LoginModel{
   final String email;
   final String password;
@@ -29,3 +28,5 @@ class LoginResponse{
     );
   }
 }
+
+

@@ -23,3 +23,11 @@ class KeywordResponse{
     );
   }
 }
+
+class getKeywordCitizen{
+  final int? id;
+  final String? keyword;
+
+  getKeywordCitizen({this.id, this.keyword});
+}
+

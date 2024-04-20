@@ -17,7 +17,7 @@ Future<LoginResponse> loginService(String email, String password) async{
 
     if(response.statusCode == 200){
       final token = json.decode(response.body)['token'];
-      return LoginResponse(token: token, statusCode: response.statusCode);;
+      return LoginResponse(token: token, statusCode: response.statusCode);
     }else{
       return LoginResponse(statusCode: response.statusCode);
     }
@@ -25,4 +25,8 @@ Future<LoginResponse> loginService(String email, String password) async{
     throw Exception('Error al inicial sesión: $e');
   }
 }
+
+
+
+
 

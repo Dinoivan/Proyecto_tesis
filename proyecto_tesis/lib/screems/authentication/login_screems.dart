@@ -7,7 +7,6 @@ import 'package:proyecto_tesis/screems/authentication/password_recovery_screem.d
 
 class PasswordFormField extends StatefulWidget {
   final TextEditingController passwordControler;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   PasswordFormField({required this.passwordControler});
 
   @override
@@ -92,6 +91,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -143,8 +143,8 @@ class _LoginPageState extends State<LoginPage> {
                 key: _formKey,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 40), // Solo
-                child: Column(
-                  children: <Widget>[
+                   child: Column(
+                     children: <Widget>[
 
                     TextFormField(
                       controller: _emailController,
@@ -328,6 +328,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                   ),
+
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                   ),
@@ -379,9 +380,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
-            ],
-            ),
-            ),
+              ],
+              ),
+              ),
             ),
             ],
             ),

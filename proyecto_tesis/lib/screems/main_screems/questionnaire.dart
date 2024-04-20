@@ -23,6 +23,8 @@ class _QuestionaireState extends State<Questionnaire> {
   TextEditingController descripcionController = TextEditingController();
   TextEditingController fechaSucesoController = TextEditingController();
   TextEditingController respuestaAbiertaController = TextEditingController();
+  FocusNode respuestaAbiertaFocusNode = FocusNode();
+
   final AuthBloc authBloc = AuthBloc();
   int _selectedIndex = 0;
   bool _isLoading = true; // Agrega esta variable de estado
@@ -83,11 +85,30 @@ class _QuestionaireState extends State<Questionnaire> {
     });
   }
 
+  bool isNumericQuestion(int questionIndex) {
+    return [1, 2].contains(questionIndex); // Añadir los índices adecuados
+  }
+
+  bool _isNumeric(String str) {
+    return double.tryParse(str) != null;
+  }
+
   void handleNextQuestion() async {
     print('selectedOptionIndex: $selectedOptionIndex');
     print('respuestaAbiertaController.text: ${respuestaAbiertaController.text}');
-    // Realizar trabajo asíncrono fuera del setState
 
+   if(isNumericQuestion(preguntaActualIndex)){
+     if(respuestaAbiertaController.text.isEmpty || !_isNumeric(respuestaAbiertaController.text)){
+       _showNumericModal();
+       return;
+     }
+   }
+
+    if (selectedOptionIndex == null && respuestaAbiertaController.text.isEmpty) {
+      _showSelectionModal();
+      return;
+    }
+    // Realizar trabajo asíncrono fuera del setState
     if (preguntaActualIndex < preguntas!.length) {
       if (preguntaActualIndex == 1 || preguntaActualIndex == 2) {
         await _guardarRespuesta(
@@ -142,6 +163,46 @@ class _QuestionaireState extends State<Questionnaire> {
       // No es necesario realizar ninguna actualización de estado aquí
     });
   }
+
+
+
+  void _showSelectionModal() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¡Atención!',style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),),
+        content: Text('Debe seleccionar una opción antes de continuar.',textAlign: TextAlign.justify,),
+        actions: [
+             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+
+        ],
+      ),
+    );
+  }
+
+  void _showNumericModal() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¡Atención!',style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),),
+        content: Text('Debe ingresar un número antes de continuar.',textAlign: TextAlign.justify,),
+        actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+        ],
+      ),
+    );
+  }
+
   Future<void>_guardarRespuesta(int questionId,int optionId, String answerText) async{
     try{
       //Llamo al servicio de guardar
@@ -156,6 +217,54 @@ class _QuestionaireState extends State<Questionnaire> {
       print("Error al guardar respuesta: $e");
     }
   }
+
+  // Método para mostrar el modal de confirmación al presionar el botón de salir
+  Future<void> _showExitConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('¿Desea salir?'),
+          content: Text('¿Está seguro de que desea salir del cuestionario?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Si'),
+              onPressed: () {
+                final RegisterBloc registerBloc = RegisterBloc();
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => Report(registerBloc: registerBloc),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    transitionDuration: Duration(milliseconds: 5),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    respuestaAbiertaController.dispose();
+    respuestaAbiertaFocusNode.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -210,22 +319,7 @@ class _QuestionaireState extends State<Questionnaire> {
                         children: [
                           Text('Salir', style: TextStyle(color: Colors.black)), // Espacio entre el texto y el icono "x"
                           IconButton(
-                            onPressed: () {
-                              final RegisterBloc registerBloc = RegisterBloc();
-                              Navigator.pushReplacement(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Report(registerBloc: registerBloc),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                                  transitionDuration: Duration(milliseconds: 5),
-                                ),
-                              );
-                            },
+                            onPressed: _showExitConfirmationDialog,
                             icon: Icon(Icons.close, color: Colors.black),
                           ),
                         ],
@@ -301,8 +395,10 @@ class _QuestionaireState extends State<Questionnaire> {
             ),
             // Mostrar input de texto para preguntas sin opciones
             if (preguntaActual.options.isEmpty)
+
               TextFormField(
                 controller: respuestaAbiertaController,
+                focusNode: respuestaAbiertaFocusNode,
                 onChanged: (text) {
                   setState(() {
                     // Actualizar el estado con el texto ingresado por el usuario
@@ -314,19 +410,9 @@ class _QuestionaireState extends State<Questionnaire> {
                 ),
                 keyboardType: TextInputType.number,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, ingrese información';
-                  }
-                  final RegExp numericRegex = RegExp(r'^[0-9]+$');
-                  if (!numericRegex.hasMatch(value)) {
-                    return 'Ingrese sólo números';
-                  }
-                  return null;
-                },
                 // ... Otros atributos para personalizar tu TextField
               ),
-            SizedBox(height: 20),
+            SizedBox(height: 50),
             Container(
               width: double.infinity,
               child: Row(

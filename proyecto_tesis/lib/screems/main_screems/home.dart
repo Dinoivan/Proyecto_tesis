@@ -3,8 +3,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:proyecto_tesis/main.dart';
+import 'package:proyecto_tesis/models/screems/keyword_model.dart';
 import 'package:proyecto_tesis/screems/authentication/login_screems.dart';
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
 import 'package:proyecto_tesis/screems/main_screems/keyword.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
@@ -18,6 +21,10 @@ import '../../models/screems/ubicacation_model.dart';
 import '../../services/sreems/send_emergency_contact_service.dart';
 import 'package:flutter_speech/flutter_speech.dart' as speech;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:proyecto_tesis/services/sreems/emergency_contacts_service.dart';
+import 'package:proyecto_tesis/services/sreems/keyword_service.dart';
+
+import 'add_contacts.dart';
 
 class Home extends StatefulWidget{
 
@@ -31,9 +38,12 @@ class _HomeState extends State<Home>{
   //Activación de reconocimeinto de voz (palabra clav)
   late final speech.SpeechRecognition _speech;
   bool _isListening = false;
-  final List<String> _keywords = ['ayuda'];
+  final List<String> _keywords = [];
   late Timer _timer;
   bool _shouldStopListening = false;
+  String? keyword;
+
+  List<Map<String, dynamic>>? contactosDeEmergencia;
 
 
   double? latitude;
@@ -61,13 +71,25 @@ class _HomeState extends State<Home>{
     getLocation();
   }
 
-  Future<void>getLocation() async{
+    Future<void>getLocation() async{
     try{
+
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       setState(() {
         latitude = position.latitude;
         longitud = position.longitude;
       });
+      // Obtener la dirección correspondiente a las coordenadas actuales
+      String? address = await _getAddressFromCoordinates(latitude!, longitud!);
+      if (address != null) {
+        // Actualizar la dirección en el estado del widget
+        setState(() {
+          address = address;
+        });
+      } else {
+        print('No se pudo obtener la dirección');
+        // Manejar el caso en el que no se pueda obtener la dirección
+      }
 
     }catch(e){
       print("Error al obtener la ubicación: $e");
@@ -83,6 +105,30 @@ class _HomeState extends State<Home>{
     }
   }
 
+  Future<String> _getAddressFromCoordinates(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        String street = placemark.thoroughfare ?? ''; // Nombre de la calle
+        String numero = placemark.street ?? '';
+        String subLocality = placemark.subLocality ?? ''; // Sublocalidad o barrio
+        String locality = placemark.locality ?? ''; // Localidad o ciudad
+        String administrativeArea = placemark.administrativeArea ?? ''; // Área administrativa (estado, provincia, región, etc.)
+        String country = placemark.country ?? ''; // País
+        String postalCode = placemark.postalCode ?? ''; // Código postal
+
+        // Construir la dirección con los datos disponibles
+        return '$street,$numero, $subLocality, $locality, $administrativeArea, $country, $postalCode';
+      } else {
+        return 'Dirección no disponible';
+      }
+    } catch (e) {
+      print("Error al obtener la dirección: $e");
+      return 'Error al obtener la dirección';
+    }
+  }
+
   Future<void> _loadToken() async {
     String? storedToken = await authBloc.getStoraredToken();
     setState(() {
@@ -95,7 +141,44 @@ class _HomeState extends State<Home>{
         userId = decodedToken["user_id"];
       }
     }
+
+    await _getContactosEmergencia();
+    await _getKeyword();
+    if(keyword!=null) {
+      print("Palabra clave en home: $keyword");
+      _keywords.add(keyword!);
+      print("Lista actualmente: $_keywords");
+    }
+
+
+    if(contactosDeEmergencia == null || contactosDeEmergencia!.isEmpty){
+      _addContactModal();
+    }
   }
+
+  Future<void> _getContactosEmergencia() async {
+    try {
+      List<Map<String, dynamic>>? contactos = await GetContactEmergency(token);
+      setState(() {
+        contactosDeEmergencia = contactos;
+      });
+    } catch (e) {
+      print('Error al obtener contactos de emergencia: $e');
+    }
+  }
+
+  Future<void> _getKeyword() async{
+    try{
+
+      getKeywordCitizen? palabraClave = await getKeyWordService(token);
+      setState(() {
+        keyword = palabraClave?.keyword;
+      });
+    }catch(e){
+      print("Error al obtener palabra clave: $e");
+    }
+  }
+
 
   void _resetToken(){
     setState(() {
@@ -138,9 +221,12 @@ class _HomeState extends State<Home>{
         print("Hola");
         final String spokenText = speechText.toLowerCase();
         if (_keywords.contains(spokenText)) {
+
           // Llama al servicio
+          String? address = await _getAddressFromCoordinates(latitude!, longitud!);
           String googleMapsLink = getGoogleMapsLink();
           UbicationURL ubicationURL = UbicationURL(
+              dir: address,
               url: googleMapsLink
             // Otros campos según la definición de tu modelo
           );
@@ -184,7 +270,12 @@ class _HomeState extends State<Home>{
             );
           }
         }
+
+        Future.delayed(Duration(seconds: 1), () {
+          _speech.listen();
+        });
         _startTimer();
+
       }
     });
 
@@ -193,8 +284,6 @@ class _HomeState extends State<Home>{
     }
 
   }
-
-
 
   void _startTimer() {
     // Inicia un temporizador de 60 segundos
@@ -215,6 +304,92 @@ class _HomeState extends State<Home>{
     });
     // Cancela el temporizador si se detiene la escucha antes de los 60 segundos
     _timer.cancel();
+  }
+
+  Future<void> _showExitConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title:Text('¿Salir de la aplicación?',
+            style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Center(child: Text('¿Estás seguro de que quieres salir de la aplicación?')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      child: Text('No'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el diálogo sin salir de la aplicación
+                      },
+                    ),
+                    TextButton(
+                      child: Text('Sí'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el diálogo
+                        _resetToken();
+                        final AuthBloc authBloc = AuthBloc();
+                        Navigator.pushReplacement(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => LoginPage(authBloc: authBloc),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            transitionDuration: Duration(milliseconds: 5),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                )
+          ],
+        );
+      },
+    );
+  }
+
+  void _addContactModal() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('¡Atención!',style: TextStyle(fontSize: 20.0),),
+        content: Text('No tienes contactos de emergencia debes agregar al menos uno para mandar tu ubicación.',textAlign: TextAlign.justify,),
+        actions: [
+
+          TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => AddContacts(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    transitionDuration: Duration(milliseconds: 5),
+                  ),
+                );
+              },
+              child: Text('Agregar contacto', textAlign: TextAlign.end),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -320,6 +495,21 @@ static const List<Widget> widgetOptions = <Widget>[
             ),
           );
           break;
+        case 4:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Configuration(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
       }
     });
   }
@@ -347,29 +537,14 @@ static const List<Widget> widgetOptions = <Widget>[
     Color buttonColor = isAlertButtonPressed ? Colors.blueAccent: Colors.black12;
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-
       appBar: AppBar(
         title: Text(""),
-        leading: IconButton(
-          onPressed: () {
-            _resetToken();
-            final AuthBloc authBloc = AuthBloc();
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => LoginPage(authBloc: authBloc),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                transitionDuration: Duration(milliseconds: 5),
-              ),
-            );
-          },
-          icon: Icon(Icons.logout, color: Colors.black),
-        ),
+          leading: IconButton(
+            onPressed: () async {
+              await _showExitConfirmationDialog(context);
+            },
+            icon: Icon(Icons.logout, color: Colors.black),
+          ),
       ),
 
       body: SingleChildScrollView(
@@ -401,7 +576,7 @@ static const List<Widget> widgetOptions = <Widget>[
                     'Haz click sobre el boton para pedir ayuda',
                     style: TextStyle(
                       color: Color.fromRGBO(164, 164, 164, 1.0),
-                      fontSize: 17.0,
+                      fontSize: 16.1,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -416,8 +591,9 @@ static const List<Widget> widgetOptions = <Widget>[
                       String googleMpasLink = getGoogleMapsLink();
 
                       print("Enlace generado presionado el boton: $googleMpasLink");
-
+                      String? address = await _getAddressFromCoordinates(latitude!, longitud!);
                         UbicationURL ubicationURL = UbicationURL(
+                            dir: address,
                             url: googleMpasLink
                           // Otros campos según la definición de tu modelo
                         );
@@ -483,13 +659,17 @@ static const List<Widget> widgetOptions = <Widget>[
                             color: isAlertButtonPressed ? Color(0xFF77A72DE):  Color(0xFFCCC8FF),
                           ),
                           child: Center(
-                            child: Text(
+                            child: latitude != null && longitud != null
+                                ? Text(
                               'SOS',
                               style: TextStyle(
                                 fontSize: 40,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w400,
                               ),
+                            )
+                                : CircularProgressIndicator( // Indicador de carga circular
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white), // Color del indicador de carga
                             ),
                           ),
                         ),
@@ -578,17 +758,31 @@ static const List<Widget> widgetOptions = <Widget>[
 
                             ),
 
-                            child: const Center(
-                              child: Text(
-                                'Agregar palabra clave',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18.0,
-                                ),
-
+                            child: keyword == null
+                                ? Text(
+                              'Agregar palabra clave',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18.0,
                               ),
-
+                            )
+                                : FutureBuilder(
+                              future: Future.delayed(Duration(seconds: 0)), // Simulación de carga de 1 segundo
+                              builder: (context, snapshot) {
+                                if (keyword == null) {
+                                  return CircularProgressIndicator(); // Muestra un indicador de carga mientras espera
+                                } else {
+                                  return Text(
+                                    'Ver palabra clave',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18.0,
+                                    ),
+                                  );
+                                }
+                              },
                             ),
 
                           ),

@@ -149,13 +149,14 @@ class _DateWidgetState extends State<DateWidget>{
       ),
       readOnly: true,
       onTap: () async{
+        DateTime now = DateTime.now();
         DateTime inicialDate = DateTime.now().toLocal();
         print('Fecha inicial: $inicialDate');
         DateTime? pickedDate = await showDatePicker(
             context: context,
             initialDate: inicialDate,
             firstDate: DateTime(1942),
-            lastDate: DateTime(2025),
+            lastDate: now,
         );
         if(pickedDate!=null){
           String formmatedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
@@ -178,7 +179,6 @@ class _DateWidgetState extends State<DateWidget>{
     );
   }
 }
-
 
 class Register extends StatefulWidget{
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:proyecto_tesis/main.dart';
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/test.dart';
@@ -64,12 +65,13 @@ class _DateWidgetState extends State<DateWidget>{
       ),
       readOnly: true,
       onTap: () async{
+        DateTime now = DateTime.now();
         DateTime inicialDate = DateTime.now().toLocal();
         DateTime? pickedDate = await showDatePicker(
           context: context,
           initialDate: inicialDate,
           firstDate: DateTime(1942),
-          lastDate: DateTime(2025),
+          lastDate: now,
         );
         if(pickedDate!=null){
           String formmatedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
@@ -188,6 +190,22 @@ int _selectedIndex = 3;
             ),
           );
           break;
+
+        case 4:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Configuration(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
       }
     });
   }
@@ -221,39 +239,6 @@ int _selectedIndex = 3;
     setState(() {
       token = storedToken;
     });
-  }
-
-  Future<void> _submitReport() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      String birthdayDate = widget.registerBloc.getCurrentBirthday()!;
-      DateTime parsedDate = DateFormat('dd/MM/yyyy').parse(birthdayDate);
-      String formattedBirthdayDate = DateFormat('yyyy-MM-dd').format(parsedDate);
-      // Crear un objeto Report con los datos del formulario
-      Report_ report = Report_(
-        createdDate: DateTime.now().toIso8601String(),
-        description: _descriptionController.text,
-        name: _nameController.text,
-        reportStatus: 'Archivado',
-        reportingDate: formattedBirthdayDate,
-      );
-
-      // Obtener el token del AuthBloc o de donde lo estés almacenand
-
-      // Llamar al servicio para guardar el reporte
-      await saveReport(report, token);
-
-    } catch (e) {
-      // Manejar errores aquí
-      print("Error al guardar el reporte: $e");
-    }finally{
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   @override
@@ -420,32 +405,78 @@ int _selectedIndex = 3;
                           width: double.infinity,
                           height: 55,
                           child: ElevatedButton(
-                            onPressed:() {
+                            onPressed:() async {
                               if(_formKey.currentState != null && _formKey.currentState!.validate()){
 
-                                _submitReport();
-                                Navigator.pushReplacement(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation, secondaryAnimation) => Test(),
-                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      );
-                                    },
-                                    transitionDuration: Duration(milliseconds: 5),
-                                  ),
+                                String birthdayDate = widget.registerBloc.getCurrentBirthday()!;
+                                DateTime parsedDate = DateFormat('dd/MM/yyyy').parse(birthdayDate);
+                                String formattedBirthdayDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+                                // Crear un objeto Report con los datos del formulario
+                                Report_ report = Report_(
+                                  createdDate: DateTime.now().toIso8601String(),
+                                  description: _descriptionController.text,
+                                  name: _nameController.text,
+                                  reportStatus: 'Archivado',
+                                  reportingDate: formattedBirthdayDate,
                                 );
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Se guardo con exito el reporte'),
-                                    duration: Duration(seconds: 4),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                                setState(() {
+                                  _isLoading = true;
+                                });
 
+                                try {
+
+                                  ReportResponse response = await saveReport(report, token);
+
+                                  if(response.statusCode == 200){
+
+                                    print("Resultado de estado correcto: ${response.statusCode}");
+
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) => Test(),
+                                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        transitionDuration: Duration(milliseconds: 5),
+                                      ),
+                                    );
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Se guardo con exito el reporte'),
+                                        duration: Duration(seconds: 4),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }else{
+                                    print("Resultado de estado en else: ${response.statusCode}");
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Sucedio un error al guardar reporte'),
+                                        duration: Duration(seconds: 4),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+
+                                  }
+
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error de servicio'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }finally{
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
                               }
                             },
                             style: ButtonStyle(
