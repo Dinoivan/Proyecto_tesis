@@ -147,3 +147,26 @@ Future<http.Response> getImageById(String token, int imageId) async {
 }
 
 
+Future<String> citizenFirstnameById(String token, int id) async {
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/v1/citizen/getCitizenById/$id'),
+      headers: {
+        'Authorization': '$token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final String firstname = responseData['firstname'] ?? '';
+      return firstname;
+    } else {
+      throw Exception('Failed to load citizen');
+    }
+  } catch (e) {
+    print('Error: $e');
+    return ''; // Devuelve una cadena vacía en caso de error
+  }
+}
+
+

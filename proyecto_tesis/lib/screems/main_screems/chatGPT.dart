@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
-import '../../blocs/autentication/auth_bloc.dart';
-import 'package:fuzzy/fuzzy.dart';
+import 'package:proyecto_tesis/main.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -14,17 +13,86 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   List<Map<String, String>> _messages = [];
 
+  String? _selectedQuestion;
+  bool _isDropdownOpen = false;
+
+  String? token;
+  int? userId;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _showExitConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title:Text('¿Salir de ChatGPT?',
+            style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Center(child: Text('¿Estás seguro de que quieres salir de ChatGPT?')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  child: Text('No'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Cerrar el diálogo sin salir de la aplicación
+                  },
+                ),
+                TextButton(
+                  child: Text('Sí'),
+                  onPressed: () async{
+                    Navigator.of(context).pop(); // Cerrar el diálogo
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>  EmergencyContacts(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 5),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Map<String, String> predefinedResponses = {
-    '¿Cómo puedo usar esta aplicación?': 'Para usar esta aplicación, primero debes registrarte e iniciar sesión. Luego puedes explorar las diferentes funcionalidades y características desde el menú principal.',
-    '¿Cómo encuentro mis contactos?': 'Primero inicia sesión, luego selecciona la opción mis contactos en la barra de navegación.',
-    '¿Cómo enviar una alerta de emergencia?': 'Primero debes iniciar sesión, luego debes agregar como mínimo un contacto de emergencia par enviar tu ubicación en tiempo real. Asimismo, tienes tres alternativas par enviar tu alerta 1. presionar el boton en la aplicación, 2. Agregando una palabra clave para activar mediante voz, 3. Puedes presionar el anillo para activar el boton en el celular',
-    '¿Donde puedo encontrar los números de ayuda de instituciones públicas?': 'Los números de instituciones publicas lo puede encontrar en la sección de configuraciones, presiona "Número de ayuda" y sera redirigido a la sección esperada',
-    '¿Cómo puedo recuperar mi contraseña en caso de haberla olvidado?': 'Esta en la pantalla de iniciar sesión, debes presionar en enlace que dice "¿Olvidaste tú contraseña?", luego sera redirigido a la pantalla de recuperación de contraseña donde tendras que ingresar tu contraseña y luego recibaras un código de verificación a tu correo electrónico para que puedas cambiar tu contraseña y volver a iniciar sesión',
-    '¿Cómo funciona la sección de reportes en la aplicación?': 'La sesión de reportes sirve para que puedes dejar constancia si has sufrido algun tipo de violencia por parte de tu pareja',
-    '¿Como funciona el reconocimiento de patrones en casos de feminicidio?': 'En este caso, primero debes completas el reporte luego seras redirigido a la sección de empezar test de idetinficación de patrones, una vez presionado deberas responder una serie de preguntas que te ayudaran a reconocer el nivel de riesgo de feminicio',
-    '¿Cómo agregar palabra clave?': 'Primero inicia sesión, luego deberas hacer clic en el boton agregar palabra clave y seras redirigido para guardar tu palabra clave',
-    '¿De que trata la aplicación?': 'La aplicación sirve para identificar patrones en caso de femincidio a traves de Big Data. Asimismo, permite enviar tu ubicación en tiempo real a tu constactos de emergencia cuando te encuentras en peligro lo que permitira que puedan sabr en que parte estas y asi poder ayudarte',
-    '¿Para que sirve la aplicación?': 'La aplicación sirve para identificar patrones en caso de femincidio a traves de Big Data. Asimismo, permite enviar tu ubicación en tiempo real a tu constactos de emergencia cuando te encuentras en peligro lo que permitira que puedan sabr en que parte estas y asi poder ayudarte',
+    '1. ¿Cómo usar esta aplicación?': 'Para usar esta aplicación, primero debes registrarte e iniciar sesión. Luego puedes explorar las diferentes funcionalidades y características desde el menú principal.',
+    '2. ¿Cómo registrarse en la aplicación?': 'Primero debes instalar la aplicación, luego cuado ingresas a la plataforma virtaul seras rediridigo a la pantalla de inicio de sesión y para que puedes registrarte debes presionar el enlace "Crear cuenta".',
+    '3. ¿Cómo encuentro mis contactos de emegercia?': 'Primero inicia sesión, luego selecciona la opción mis contactos en la barra de navegación.',
+    '4. ¿Cómo puedo encontrar mis contactos?': 'Primero inicia sesión, luego selecciona la opción mis contactos en la barra de navegación.',
+    '5. ¿Cómo enviar una alerta de emergencia?': 'Primero debes iniciar sesión, luego debes agregar como mínimo un contacto de emergencia para enviar tu ubicación en tiempo real. Asimismo, tienes dos alternativas para enviar tu alerta  1. presionar el boton en la aplicación, 2. Agregando una palabra clave para activar mediante voz.',
+    '6. ¿Donde puedo encontrar los números de ayuda de instituciones públicas?': 'Los números de instituciones publicas lo puede encontrar en la sección de configuraciones, presiona "Número de ayuda" y sera redirigido a la sección esperada',
+    '7. ¿Cómo puedo recuperar mi contraseña en caso de haberla olvidado?': 'Esta en la pantalla de iniciar sesión, debes presionar en enlace que dice "¿Olvidaste tú contraseña?", luego sera redirigido a la pantalla de recuperación de contraseña donde tendras que ingresar tu correo electrónico y luego recibaras un código de verificación a tu correo para que puedas cambiar tu contraseña y volver a iniciar sesión',
+    '8. ¿Cómo funciona la sección de reportes en la aplicación?': 'La sesión de reportes sirve para que puedes dejar constancia si has sufrido algun tipo de violencia por parte de tu pareja',
+    '9. ¿Como funciona el reconocimiento de patrones en casos de feminicidio?': 'En este caso, primero debes completar el reporte, luego serás redirigido a la sección de empezar test de idetinficación de patrones, una vez presionado deberás responder una serie de preguntas que te ayudarán a reconocer el nivel de riesgo de feminicio',
+    '10.¿Cómo agregar palabra clave?': 'Primero inicia sesión, luego deberas hacer clic en el boton ver palabra clave y seras redirigido a la pantalla para editar tu palabra clave ya que al inicio la aplicación misma te indica como debes agregar tu palabra clave para el reconocimiento de voz',
+    '11.¿Cuál es el propósito de la aplicación?': 'El principal propósito de la aplicación es salvar vidas de mujeres cuando se encuentra en peligro',
+    '12.¿Cómo se llama la aplicación?': 'La aplicación se llama Ms SoS',
+    '13.¿Para que sirve la aplicación?': 'La aplicación sirve para identificar patrones en caso de femincidio a traves de Big Data. Asimismo, permite enviar tu ubicación en tiempo real a tu constactos de emergencia cuando te encuentras en peligro lo que permitirá que puedan saber en que parte estas y asi poder ayudarte',
+    '14.¿Cómo editar mi perfil de usuario?': 'Primero debes haber iniciado sesión, luego presionar el boton de barra de navegación en la parte inferior llamado "Mi Perfil". Asimismo, una vez dentro de la pantalla del perfil de usuario presionar el boton "Editar" y automáticamente se abrirá un modal listo para actualizar tus datos ',
+    '15.¿Quiénes son los autores del proyecto proyecto': 'Los autores son Dino Iván Pérez Vásquez y Antonio José Ferrandiz Bendezú',
+    '16.¿Cuál es el objetivo de este proyecto': 'El proyecto tiene como finalidad ayudar a las mujeres en situaciones de peligro',
     // Agrega más preguntas y respuestas aquí según tus necesidades
   };
   // Función para realizar la búsqueda fuzzy
@@ -62,29 +130,19 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
 
-      double bestSimilarity = 0.0;
-      // Verifica si el texto del usuario coincide con alguna pregunta predefinida
-      String? predefinedQuestion;
-      for (final key in predefinedResponses.keys) {
-        // Calcula la distancia de Levenshtein entre el texto del usuario y la pregunta predefinida
-        final distance = levenshteinDistance(key.toLowerCase(), text.toLowerCase());
-        final maxLength = key.length > text.length ? key.length : text.length;
-        final similarity = 1 - (distance / maxLength); // Calcula una medida de similitud basada en la distancia de Levenshtein
-        if (similarity > bestSimilarity && similarity >= 0.6) {
-          bestSimilarity = similarity;
-          predefinedQuestion = key;
-          break;
+      if (_selectedQuestion != null) {
+        // Busca la respuesta correspondiente a la pregunta seleccionada
+        String? predefinedResponse = predefinedResponses[_selectedQuestion!];
+        if (predefinedResponse != null) {
+          // Si se encuentra la respuesta, agrégala a los mensajes
+          setState(() {
+            _messages.removeAt(0); // Elimina el mensaje "Cargando..."
+            _messages.insert(0, {'sender': 'ChatGPT', 'message': predefinedResponse});
+          });
+          _selectedQuestion = null;
+          return; // Sale de la función para evitar enviar una solicitud a ChatGPT
         }
       }
-
-      if (predefinedQuestion != null) {
-        // Si se encuentra una pregunta predefinida similar, responde con la respuesta correspondiente
-        setState(() {
-          // Limpia el texto del TextField después de enviar el mensaj
-          _messages.removeAt(0); // Elimina el mensaje "Cargando..."
-          _messages.insert(0, {'sender': 'ChatGPT', 'message': predefinedResponses[predefinedQuestion]!});
-        });
-      } else {
         // Si no se encuentra una pregunta predefinida similar, realiza la solicitud al servicio de ChatGPT
         final response = await http.post(
           Uri.parse('https://api.openai.com/v1/chat/completions'),
@@ -105,7 +163,6 @@ class _ChatScreenState extends State<ChatScreen> {
           }),
         );
 
-        //Si la solicitud del servicio responde 200 procede a enviar respuesta
         if (response.statusCode == 200) {
           // Extrae el texto generado por ChatGPT de la respuesta y decodifica los caracteres especiales
           final data = jsonDecode(response.body);
@@ -120,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
         } else {
           throw Exception('Failed to load response');
         }
-      }
+
     } catch (e) {
       print('Error en la solicitud: $e');
       // Maneja el error, por ejemplo, mostrando un mensaje al usuario
@@ -129,6 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    authBloc.saveLastScreem('chatGPT');
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(100.0), // Altura personalizada para el AppBar
@@ -140,48 +198,123 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           child: AppBar(
-            title: Text(''),
-            backgroundColor: Colors.transparent, // Fondo del AppBar transparente para mostrar el Container detrás
+            backgroundColor: Colors.transparent, // Fondo del AppBar transparente
             elevation: 0, // Sin sombra
-            centerTitle: true,
-            automaticallyImplyLeading: false,// Centra el título del AppBar
-            actions: [
-              Container(
-                margin: EdgeInsets.only(top: 10,right: 10.0),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(20.0),
-                        color: Colors.white,
+            automaticallyImplyLeading: false, // Deshabilita el botón de retorno
+            title: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white), // Define el borde blanco
+                      borderRadius: BorderRadius.circular(20),
+                      // Opcional: Define el radio de borde para que sea redondeado
+                      color: Colors.white,
+                    ),
+                    margin: EdgeInsets.only(left: 0),
+                    padding: EdgeInsets.only(left: 7),
+                    alignment: Alignment.center,
+                    child: Container(
+                      // Establece un ancho máximo
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal, // Establece el desplazamiento horizontal
+                        controller: ScrollController(), // Configura un controlador de desplazamiento
+                        child: DropdownButton<String>(
+                          value: _selectedQuestion,
+                          onChanged: (String? newValue) async {
+                            setState(() {
+                              _selectedQuestion = newValue;
+                              _controller.text = newValue ?? '';
+                              _isDropdownOpen = false;
+                            });
+                            if(newValue!=null){
+                              await _sendMessage(newValue);
+                            }
+                          },
+                          onTap: () {
+                            setState(() {
+                              _isDropdownOpen = !_isDropdownOpen;
+                            });
+                          },
+                          underline: Container(), // Elimina el subrayado
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Row(
+                                children: [
+                                 // Espacio entre el icono y el texto
+                                  Text(
+                                    'Seleccione pregunta',
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 15
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black54,
+                                  ),
+
+                                ],
+                              ),
+
+                            ),
+                            ...predefinedResponses.keys.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: SizedBox(
+                                  child: Text(
+                                    value,
+                                    overflow: TextOverflow.ellipsis, // Trunca el texto si es demasiado largo
+                                    style: TextStyle(
+                                      color: _selectedQuestion == value ? Colors.black : Colors.black,fontSize: 15
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
                       ),
                     ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Salir', style: TextStyle(color: Colors.black)), // Espacio entre el texto y el icono "x"
-                          IconButton(
-                            onPressed: () {
-                              final AuthBloc authBloc = AuthBloc();
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => EmergencyContacts()));
-                            },
-                            icon: Icon(Icons.close, color: Colors.black),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-            // Puedes añadir más opciones de configuración del AppBar aquí
+                SizedBox(width: 35,),
+                Container(
+                  margin: EdgeInsets.only(right: 30),
+                  child: InkWell(
+                    onTap: () async {
+                      await _showExitConfirmationDialog(context);
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(20.0),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Salir', style: TextStyle(color: Colors.black54, fontSize: 20)), // Tamaño del texto "Salir"
+                              Icon(Icons.close_rounded, color: Colors.black54, size: 25), // Tamaño del icono "x"
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -192,37 +325,60 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.all(8),
               color: Colors.white,
               child: ListView.builder(
-                reverse: true,
                 itemCount: _messages.length,
                 itemBuilder: (BuildContext context, int index) {
                   final message = _messages[index];
-                  return ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    title: Align(
-                      alignment: message['sender'] == 'User' ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        margin: EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color: message['sender'] == 'User' ? Color(0xFF7A72DE) : Colors.grey[200],
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(message['sender'] == 'User' ? 24 : 4),
-                            topRight: Radius.circular(message['sender'] == 'User' ? 4 : 24),
-                            bottomLeft: Radius.circular(24),
-                            bottomRight: Radius.circular(24),
+                  final isUser = message['sender'] == 'User';
+                  final isChatGPT = message['sender'] == 'ChatGPT';
+
+                  // Agrega un mensaje adicional antes de cada mensaje del usuario o de ChatGPT
+                  final userIndicator = isUser ? 'Usuario 🧑‍🎓' : '';
+                  final chatGPTIndicator = isChatGPT ? 'ChatGPT respondiendo 🤖' : '';
+
+                  return Column(
+                    crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      if (userIndicator.isNotEmpty || chatGPTIndicator.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4,horizontal: 20),
+                          child: Text(
+                            isUser ? userIndicator : chatGPTIndicator,
+                            style: TextStyle(
+                              color: isUser ? Colors.black54 : Colors.grey, // Color del indicador del usuario y de ChatGPT
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          message['message']!,
-                          style: TextStyle(
-                            color: message['sender'] == 'User' ? Colors.white : Colors.black,
-                            fontSize: 16,
+                      ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        title: Align(
+                          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            padding: EdgeInsets.all(12),
+                            margin: EdgeInsets.symmetric(vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isUser ? Color(0xFF7A72DE) : Colors.grey[200],
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(isUser ? 24 : 4),
+                                topRight: Radius.circular(isUser ? 4 : 24),
+                                bottomLeft: Radius.circular(24),
+                                bottomRight: Radius.circular(24),
+                              ),
+                            ),
+                            child: Text(
+                              message['message']!,
+                              style: TextStyle(
+                                color: isUser ? Colors.white : Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   );
                 },
+                reverse: true, // Invierte el orden de los elementos en el ListView
               ),
             ),
           ),
@@ -237,7 +393,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: 'Type your message...',
+                      hintText: 'Realiza tu pregunta...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide.none,
@@ -264,7 +420,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-
 
     );
   }

@@ -4,15 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
+import 'package:proyecto_tesis/models/screems/keyword_model.dart';
 import 'package:proyecto_tesis/screems/main_screems/add_contacts.dart';
 import 'package:proyecto_tesis/screems/main_screems/chatGPT.dart';
 import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
+import 'package:proyecto_tesis/screems/main_screems/keyword.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
 import 'package:proyecto_tesis/screems/modals/getContact.dart';
 import 'package:proyecto_tesis/services/sreems/emergency_contacts_service.dart';
 import 'package:proyecto_tesis/screems/modals/editContact.dart';
+import 'package:proyecto_tesis/services/sreems/keyword_service.dart';
 import 'home.dart';
 
 class EmergencyContacts extends StatefulWidget{
@@ -26,6 +29,8 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
 
   String? token;
   List<Map<String, dynamic>>? contactosDeEmergencia;
+  bool _isLoading = false;
+  String? keyword;
 
   @override
   void initState(){
@@ -40,17 +45,28 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
     });
 
     await _getContactosEmergencia();
+    await _getKeyword();
+    if(keyword == null){
+      _addKeywordModal();
+    }
   }
 
   Future<void> _getContactosEmergencia() async{
+    setState(() {
+      _isLoading = true;
+    });
     try{
-
       List<Map<String, dynamic>>? contactos = await GetContactEmergency(token);
       setState(() {
         contactosDeEmergencia = contactos;
+        _isLoading = false;
       });
     }catch(e){
       print('Error al obtener contactos de emergencia: $e');
+    }finally{
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -163,12 +179,57 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
     Colors.grey[700], // Configura
   ];
 
+  //Obtener palabra clave
+  Future<void> _getKeyword() async{
+    try{
+      getKeywordCitizen? palabraClave = await getKeyWordService(token);
+      setState(() {
+        keyword = palabraClave?.keyword;
+      });
+    }catch(e){
+      print("Error al obtener palabra clave: $e");
+    }
+  }
+
+  //Modal para informacion palabra clave
+  void _addKeywordModal(){
+    if(mounted){
+      showDialog(
+        barrierDismissible: false,
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('¡Atención',style: TextStyle(fontSize: 20.0),),
+            content: Text('Ahora deberás ingresar una palabra clave para activar mediante voz la alerta de emergencia.',
+            textAlign: TextAlign.justify,),
+            actions: [
+              TextButton(
+                  onPressed: (){
+                    Navigator.pushReplacement(
+                        context,
+                    PageRouteBuilder(pageBuilder: (context,animation,secondaryAnimation) => KeyWord(),
+                    transitionsBuilder: (context,animation,secondaryAnimation,child){
+                      return FadeTransition(
+                          opacity: animation,
+                      child: child,
+                      );
+                    },
+                    transitionDuration: Duration(milliseconds: 5),
+                     ),
+                    );
+                  },
+                  child: Text('Agregar palabra clave,'),
+              ),
+            ],
+       ),
+     );
+    }
+  }
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('emergency_contacts');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-
       appBar: AppBar(
         title: Text(""),
         leading: IconButton(
@@ -385,6 +446,11 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                         ))
                             .toList(),
                       )
+
+                      else if(_isLoading)
+                        Center(
+                          child: CircularProgressIndicator(),
+                        )
                     else
                       Center(
                        child: Text(

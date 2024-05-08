@@ -243,6 +243,7 @@ int _selectedIndex = 3;
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('report');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
 

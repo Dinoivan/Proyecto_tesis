@@ -5,16 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/screems/authentication/login_screems.dart';
-import 'package:proyecto_tesis/screems/main_screems/add_contacts.dart';
-import 'package:proyecto_tesis/screems/main_screems/chatGPT.dart';
 import 'package:proyecto_tesis/screems/main_screems/help.dart';
 import 'package:proyecto_tesis/screems/main_screems/keyword.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
-import 'package:proyecto_tesis/screems/modals/getContact.dart';
-import 'package:proyecto_tesis/services/sreems/emergency_contacts_service.dart';
-import 'package:proyecto_tesis/screems/modals/editContact.dart';
 import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
 import 'home.dart';
 
@@ -50,7 +45,7 @@ class _ConfigurationState extends State<Configuration>{
       'icon': Icons.call,
     },
     {
-      'name': 'Cerrar cesión',
+      'name': 'Cerrar sesión',
       'icon': Icons.logout,
     },
   ];
@@ -191,18 +186,18 @@ class _ConfigurationState extends State<Configuration>{
       barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Center(child: Text('¿Salir de la aplicación?',textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),)),
+          title: Text('¿Salir de la aplicación?',
+            style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Center(child: Text('¿Estás seguro de que quieres salir de la aplicación?')),
+                Text('¿Estás seguro de que quieres salir de la aplicación?'),
               ],
             ),
           ),
           actions: <Widget>[
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
                   child: Text('No'),
@@ -212,10 +207,9 @@ class _ConfigurationState extends State<Configuration>{
                 ),
                 TextButton(
                   child: Text('Sí'),
-                  onPressed: () {
+                  onPressed: () async{
                     Navigator.of(context).pop(); // Cerrar el diálogo
-                    _resetToken();
-                    final AuthBloc authBloc = AuthBloc();
+                    await authBloc.resetToken();
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
@@ -242,6 +236,7 @@ class _ConfigurationState extends State<Configuration>{
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('configuration');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
 
@@ -373,7 +368,7 @@ class _ConfigurationState extends State<Configuration>{
                                 );
                                 break;
 
-                              case 'Cerrar cesión':
+                              case 'Cerrar sesión':
                                 await _showExitConfirmationDialog(context);
                                 break;
                             }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/models/screems/keyword_model.dart';
@@ -172,8 +173,37 @@ class _KeyWordState extends State<KeyWord>{
   }
   }
 
+  String _removeAccents(String text) {
+    final Map<String, String> accentMap = {
+      'á': 'a', 'Á': 'A',
+      'é': 'e', 'É': 'E',
+      'í': 'i', 'Í': 'I',
+      'ó': 'o', 'Ó': 'O',
+      'ú': 'u', 'Ú': 'U',
+      'à': 'a', 'À': 'A',
+      'è': 'e', 'È': 'E',
+      'ì': 'i', 'Ì': 'I',
+      'ò': 'o', 'Ò': 'O',
+      'ù': 'u', 'Ù': 'U',
+      'ä': 'a', 'Ä': 'A',
+      'ë': 'e', 'Ë': 'E',
+      'ï': 'i', 'Ï': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ü': 'u', 'Ü': 'U',
+    };
+
+    return text.replaceAllMapped(RegExp('[${accentMap.keys.join()}]'), (match) => accentMap[match.group(0)]!);
+  }
+
+  String _accentuateCharacters(String text) {
+    // Elimina los caracteres especiales y permite solo letras, espacios y dígitos
+    String cleanText = _removeAccents(text); // Elimina los acentos primero
+    return cleanText.replaceAll(RegExp(r'[^\w\s]'), '');
+  }
+
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('keyword');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
@@ -272,6 +302,10 @@ class _KeyWordState extends State<KeyWord>{
                               }
                               return null;
                             },
+
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z,áéíóúÁÉÍÓÚ\s]')), // Permite letras, coma y espacios
+                            ],
                           ),
 
                           const Padding(
@@ -285,7 +319,7 @@ class _KeyWordState extends State<KeyWord>{
                               onPressed: () async {
                                 if(_formKey.currentState != null && _formKey.currentState!.validate()){
 
-                                  final palabraclave = _keywordController.text;
+                                  final palabraclave = _accentuateCharacters(_keywordController.text);
 
                                   setState(() {
                                     _isLoading = true;
@@ -293,7 +327,7 @@ class _KeyWordState extends State<KeyWord>{
 
                                   try{
                                     if(keyword == null){
-                                      KeywordResponse response =  await keywordService(palabraclave, token);
+                                      KeywordResponse response =  await keywordService(palabraclave.toLowerCase(), token);
 
                                       if(response.statusCode == 200 && token!=null){
                                         await _getKeyword();

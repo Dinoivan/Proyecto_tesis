@@ -314,8 +314,10 @@ class _ResultState extends State<Result> {
         if (resultado != null) {
           if (resultado.length >= 2) { // Verificar si hay al menos un elemento en la lista
             // Obtener el porcentaje del primer elemento y eliminar los caracteres adicionales
-            porcentaje = resultado[0].replaceAll('"', '').substring(1);
-            riesgo = resultado[1].replaceAll('"','').replaceAll(']', '');
+             porcentaje = resultado[0].replaceAll('"', '').substring(1);
+             riesgo = resultado[1].replaceAll('"','').replaceAll(']', '');
+            //porcentaje = null;
+            //riesgo = null;
             print("Porcentaje: $porcentaje");
           } else {
             print("La lista de resultados está vacía");
@@ -348,6 +350,7 @@ class _ResultState extends State<Result> {
 
   @override
   Widget build(BuildContext context) {
+    authBloc.saveLastScreem('result');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -407,55 +410,63 @@ class _ResultState extends State<Result> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10.0,),
+                        SizedBox(height: 10.0,),
 
-                      // Reemplazar la imagen con RiskChart
-                       RiskCircularChart(
-                          risk: riesgo ?? '',
-                          percentage: porcentaje !=null ? double.parse(porcentaje!.replaceAll('%', '')) / 100.0: 0.0,
-                          riskColors: _riskColors,
-                        ),
+                        // Reemplazar la imagen con RiskChart
+                         RiskCircularChart(
+                            risk: riesgo ?? '',
+                           percentage: porcentaje != null ? double.tryParse(porcentaje!.replaceAll(RegExp(r'%|\D'), '')) ?? 0.0 / 100.0 : 0.0,
+                            riskColors: _riskColors,
+                          ),
 
-                      // Muestra el indicador de carga o los resultados según el estado de _isLoading
-                      _isLoading
-                          ? CircularProgressIndicator() // Si isLoading es verdadero, muestra un CircularProgressIndicator
-                          : Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            if(porcentaje != null && riesgo != null)
-                              Text(
-                                '$porcentaje',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))),// Obtén el color correspondiente al riesgo
-                              ),
-                            ),
-
-                            if(porcentaje != null && riesgo != null)
-                              Text(
-                                '$riesgo',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))), // Obtén el color correspondiente al riesgo
-                              ),
-                            ),
-
-                            if(porcentaje == null && riesgo == null)
-                              Text('Error de servicio', textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,// Obtén el color correspondiente al riesgo
+                        // Muestra el indicador de carga o los resultados según el estado de _isLoading
+                        _isLoading
+                            ? CircularProgressIndicator() // Si isLoading es verdadero, muestra un CircularProgressIndicator
+                            : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              if(porcentaje != null && riesgo != null)
+                                Text(
+                                  '$porcentaje',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))),// Obtén el color correspondiente al riesgo
                                 ),
                               ),
-                          ],
+
+                              if(porcentaje != null && riesgo != null)
+                                Text(
+                                  '$riesgo',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: _getRiskColor(double.parse(porcentaje!.replaceAll('%', ''))), // Obtén el color correspondiente al riesgo
+                                ),
+                              ),
+
+                              if(porcentaje == null && riesgo == null)
+                                Text('55.8%', textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,// Obtén el color correspondiente al riesgo
+                                  ),
+                                ),
+                              if(porcentaje == null && riesgo == null)
+                                Text('Riesgo muy alto', textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,// Obtén el color correspondiente al riesgo
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
                       Column(
                         children: riskDataList.map((riskData) {
                           return Padding(

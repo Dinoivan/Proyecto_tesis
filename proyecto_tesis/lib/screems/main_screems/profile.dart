@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:proyecto_tesis/screems/modals/editProfile.dart';
 import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 
 class DateWidget extends StatefulWidget{
@@ -123,10 +124,11 @@ class _ProfileState extends State<Profile>{
   int? userId;
   String? token;
   late Future<Citizen> _citizenFuture;
+  late SharedPreferences _prefs;
+
   bool _showSnackBar = false;
 
   File? _profileImage; // Variable para almacenar la imagen de perfil seleccionada
-  late SharedPreferences _prefs;
 
   late CitizenUpdate _citizenData = CitizenUpdate(
     firstname: '',
@@ -439,10 +441,8 @@ class _ProfileState extends State<Profile>{
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    authBloc.saveLastScreem('profile');
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
 
       appBar: AppBar(
@@ -558,12 +558,6 @@ class _ProfileState extends State<Profile>{
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData) {
                     final Citizen citizen = snapshot.data!;
-
-                    CitizenUpdate updatdCitizen = CitizenUpdate(
-                        birthdayDate: citizen.birthdayDate,
-                        email: citizen.email,
-                        firstname: citizen.firstname,
-                        lastname: citizen.lastname);
 
                     _fullnameController.text = citizen.firstname;
                     _lastNameController.text = citizen.lastname;
@@ -753,14 +747,12 @@ class _ProfileState extends State<Profile>{
                                   //Obtener la fecha de nacimiento del controlador y convertirla al formato requerido
                                   print("En al función _updateCitizen: $token");
                                   print(
-                                      "Datos actualizados: ${_fullnameController
-                                          .text}, ${_lastNameController
-                                          .text}, ${_birthdayDateController
-                                          .text}, ${_emailController.text}");
+                                      "Datos actualizados: ${_fullnameController.text}, ${_lastNameController.text}, ${_birthdayDateController.text}, ${_emailController.text}");
                                   String formatedBirthdayDate = DateFormat(
                                       'yyyy-MM-dd').format(birthdayDateTime);
                                   print(
                                       "Fecha formateada: $formatedBirthdayDate");
+
 
                                   CitizenUpdate updated = CitizenUpdate(
                                     firstname: _fullnameController.text,

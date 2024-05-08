@@ -23,353 +23,405 @@ import 'package:flutter_speech/flutter_speech.dart' as speech;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proyecto_tesis/services/sreems/emergency_contacts_service.dart';
 import 'package:proyecto_tesis/services/sreems/keyword_service.dart';
-
 import 'add_contacts.dart';
 
-class Home extends StatefulWidget{
+  class Home extends StatefulWidget{
 
-  @override
-  _HomeState createState() => _HomeState();
+    @override
+    _HomeState createState() => _HomeState();
 
-}
-
-class _HomeState extends State<Home>{
-
-  //Activación de reconocimeinto de voz (palabra clav)
-  late final speech.SpeechRecognition _speech;
-  bool _isListening = false;
-  final List<String> _keywords = [];
-  late Timer _timer;
-  bool _shouldStopListening = false;
-  String? keyword;
-
-  List<Map<String, dynamic>>? contactosDeEmergencia;
-
-
-  double? latitude;
-  double? longitud;
-
-  bool isAlertButtonPressed = false;
-  String statusText = 'Apagado';
-
-  void _toggleAlertButton(){
-    setState(() {
-      isAlertButtonPressed = !isAlertButtonPressed;
-      statusText = isAlertButtonPressed ? 'SOS' : 'SOS';
-    });
   }
 
-  int? userId;
-  String? token;
+  class _HomeState extends State<Home> {
 
-  @override
-  void initState(){
-    _loadToken();
-    checkAndRequestMicrophonePermission();
-    _speech = speech.SpeechRecognition();
-    _initializeSpeechRecognition();
-    getLocation();
-  }
+    //Activación de reconocimeinto de voz (palabra clav)
+    late final speech.SpeechRecognition _speech;
+    bool _isListening = false;
+    //bool _isLoading = false;
+    bool _shouldStopListening = false;
+    final List<String> _keywords = [];
+    String? keyword;
 
-    Future<void>getLocation() async{
-    try{
+    bool _keywordDetected = false;
 
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Map<String, dynamic>>? contactosDeEmergencia;
+
+
+    double? latitude;
+    double? longitud;
+
+    bool isAlertButtonPressed = false;
+    String statusText = 'Apagado';
+
+    void _toggleAlertButton(){
       setState(() {
-        latitude = position.latitude;
-        longitud = position.longitude;
+        isAlertButtonPressed = !isAlertButtonPressed;
+        statusText = isAlertButtonPressed ? 'SOS' : 'SOS';
       });
-      // Obtener la dirección correspondiente a las coordenadas actuales
-      String? address = await _getAddressFromCoordinates(latitude!, longitud!);
-      if (address != null) {
-        // Actualizar la dirección en el estado del widget
-        setState(() {
-          address = address;
-        });
-      } else {
-        print('No se pudo obtener la dirección');
-        // Manejar el caso en el que no se pueda obtener la dirección
+    }
+
+    int? userId;
+    String? token;
+
+    @override
+    void initState(){
+      super.initState();
+      _loadToken();
+      _speech = speech.SpeechRecognition();
+    }
+
+    Future<void> _requestPermission() async {
+      // Solicitar permiso para la ubicación
+      LocationPermission locationPermission = await Geolocator.requestPermission();
+      if (locationPermission == LocationPermission.denied) {
+        return; // Si el permiso de ubicación es denegado, no solicitamos permiso de micrófono
       }
 
-    }catch(e){
-      print("Error al obtener la ubicación: $e");
-
-    }
-  }
-
-  String getGoogleMapsLink(){
-    if(latitude!=null && longitud!=null){
-      return 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitud';
-    }else{
-      return '';
-    }
-  }
-
-  Future<String> _getAddressFromCoordinates(double latitude, double longitude) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        Placemark placemark = placemarks.first;
-        String street = placemark.thoroughfare ?? ''; // Nombre de la calle
-        String numero = placemark.street ?? '';
-        String subLocality = placemark.subLocality ?? ''; // Sublocalidad o barrio
-        String locality = placemark.locality ?? ''; // Localidad o ciudad
-        String administrativeArea = placemark.administrativeArea ?? ''; // Área administrativa (estado, provincia, región, etc.)
-        String country = placemark.country ?? ''; // País
-        String postalCode = placemark.postalCode ?? ''; // Código postal
-
-        // Construir la dirección con los datos disponibles
-        return '$street,$numero, $subLocality, $locality, $administrativeArea, $country, $postalCode';
-      } else {
-        return 'Dirección no disponible';
-      }
-    } catch (e) {
-      print("Error al obtener la dirección: $e");
-      return 'Error al obtener la dirección';
-    }
-  }
-
-  Future<void> _loadToken() async {
-    String? storedToken = await authBloc.getStoraredToken();
-    setState(() {
-      token = storedToken;
-    });
-
-    if(token!=null){
-      Map<String,dynamic> decodedToken = Jwt.parseJwt(token!);
-      if(decodedToken.containsKey('user_id')){
-        userId = decodedToken["user_id"];
+      // Solicitar permiso para el micrófono
+      var microphoneStatus = await Permission.microphone.status;
+      if (!microphoneStatus.isGranted) {
+        microphoneStatus = await Permission.microphone.request();
+        if (microphoneStatus.isDenied) {
+          // El usuario negó el permiso, puedes mostrar un mensaje para solicitarlo nuevamente.
+          // Por ejemplo: ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, habilite el permiso de micrófono.')));
+        }
       }
     }
 
-    await _getContactosEmergencia();
-    await _getKeyword();
-    if(keyword!=null) {
-      print("Palabra clave en home: $keyword");
-      _keywords.add(keyword!);
-      print("Lista actualmente: $_keywords");
+    String _removeAccents(String text) {
+      final Map<String, String> accentMap = {
+        'á': 'a', 'Á': 'A',
+        'é': 'e', 'É': 'E',
+        'í': 'i', 'Í': 'I',
+        'ó': 'o', 'Ó': 'O',
+        'ú': 'u', 'Ú': 'U',
+        'à': 'a', 'À': 'A',
+        'è': 'e', 'È': 'E',
+        'ì': 'i', 'Ì': 'I',
+        'ò': 'o', 'Ò': 'O',
+        'ù': 'u', 'Ù': 'U',
+        'ä': 'a', 'Ä': 'A',
+        'ë': 'e', 'Ë': 'E',
+        'ï': 'i', 'Ï': 'I',
+        'ö': 'o', 'Ö': 'O',
+        'ü': 'u', 'Ü': 'U',
+      };
+
+      return text.replaceAllMapped(RegExp('[${accentMap.keys.join()}]'), (match) => accentMap[match.group(0)]!);
     }
 
-
-    if(contactosDeEmergencia == null || contactosDeEmergencia!.isEmpty){
-      _addContactModal();
+    String _accentuateCharacters(String text) {
+      // Elimina los caracteres especiales y permite solo letras, espacios y dígitos
+      String cleanText = _removeAccents(text); // Elimina los acentos primero
+      return cleanText.replaceAll(RegExp(r'[^\w\s]'), '');
     }
-  }
 
-  Future<void> _getContactosEmergencia() async {
-    try {
-      List<Map<String, dynamic>>? contactos = await GetContactEmergency(token);
-      setState(() {
-        contactosDeEmergencia = contactos;
-      });
-    } catch (e) {
-      print('Error al obtener contactos de emergencia: $e');
-    }
-  }
+    void _initializeSpeechRecognition () async{
+        await _getKeyword();
+        print("prueba de latitud y longitud: $latitude, $longitud}");
+        if(latitude != null && longitud !=null) {
+          _speech.setAvailabilityHandler((bool result) {
+            setState(() async {
+              _isListening = result;
+              print('Reconocimiento de voz disponible: $_isListening');
+              print("Palabra inicio: $_keywords");
+              if (!_isListening) {
+                // Si el reconocimiento de voz no está disponible, reiniciar la escucha después de un breve período de tiempo
+                Future.delayed(Duration(seconds: 1), () {
+                  if (!_shouldStopListening) {
+                    _startListening();
+                  }
+                });
+              }
+            });
+          });
 
-  Future<void> _getKeyword() async{
-    try{
+          _speech.setRecognitionStartedHandler(() {
+            setState(() {
+              _isListening = true;
+              print('Reconocimiento de voz disponible: $_isListening');
+              print("Palabra intermedio: $_keywords");
+            });
+          });
 
-      getKeywordCitizen? palabraClave = await getKeyWordService(token);
-      setState(() {
-        keyword = palabraClave?.keyword;
-      });
-    }catch(e){
-      print("Error al obtener palabra clave: $e");
-    }
-  }
-
-
-  void _resetToken(){
-    setState(() {
-      token = null;
-    });
-  }
-
-  //Permisos para activar el microfono de celular para escuchar voz
-  Future<void> checkAndRequestMicrophonePermission() async {
-    var status = await Permission.microphone.status;
-    if (!status.isGranted) {
-      status = await Permission.microphone.request();
-      if (status.isDenied) {
-        // El usuario negó el permiso, puedes mostrar un mensaje para solicitarlo nuevamente.
-        // Por ejemplo: ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Por favor, habilite el permiso de micrófono.')));
-      }
-    }
-  }
-
-  void _initializeSpeechRecognition() {
-    _speech.setAvailabilityHandler((bool result) {
-      setState(() {
-        _isListening = result;
-        print('Reconocimiento de voz disponible: $_isListening');
-      });
-    });
-
-    _speech.setRecognitionStartedHandler(() {
-      setState(() {
-        _startTimer();
-        _isListening = true;
-        print('Reconocimiento de voz disponible: $_isListening');
-      });
-      _startTimer();
-      //Inicia el temporizador cuando se inicia el reconocimiento de voz
-    });
-
-    _speech.setRecognitionResultHandler((String? speechText) async {
-      if (speechText != null) {
-        print("Hola");
-        final String spokenText = speechText.toLowerCase();
-        if (_keywords.contains(spokenText)) {
-
-          // Llama al servicio
-          String? address = await _getAddressFromCoordinates(latitude!, longitud!);
-          String googleMapsLink = getGoogleMapsLink();
-          UbicationURL ubicationURL = UbicationURL(
-              dir: address,
-              url: googleMapsLink
-            // Otros campos según la definición de tu modelo
-          );
-          Emergency resultado = await EnviarEnlace(userId, ubicationURL, token);
-
-          print('prueba numero 1 de reconocimiento de voz: ${resultado.statusCode}');
-          print('enlace generado desde reonocimiento de voz inicialmente: $googleMapsLink');
-
-          // Verifica el resultado del servicio
-          if (resultado.statusCode == 200) {
-            // Activa el botón SOS
-            _toggleAlertButton();
-            // Navega a la pantalla de envío de ubicación
-            Navigator.pushReplacement(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => SendLocation(),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: child,
+          _speech.setRecognitionResultHandler((String? speechText) async {
+            if (mounted) {
+              print("palabra fuera de la condición: $_speech");
+              if (speechText != null) {
+                print("palabra: $_speech");
+                final String spokenText = speechText.toLowerCase();
+                if (_keywords.contains(_accentuateCharacters(spokenText))) {
+                  _keywordDetected = true;
+                  print("Palabra clave detectada: ${_keywords.contains(spokenText)}");
+                  String? address = await _getAddressFromCoordinates(latitude!, longitud!);
+                  String googleMapsLink = getGoogleMapsLink();
+                  UbicationURL ubicationURL = UbicationURL(
+                      dir: address,
+                      url: googleMapsLink
                   );
-                },
-              ),
-            );
-            // Muestra un mensaje de éxito
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Se envió el enlace exitosamente.'),
-                duration: Duration(seconds: 4),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }else{
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Estado diferente a 200.'),
-                duration: Duration(seconds: 4),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+                  Emergency resultado = await EnviarEnlace(userId, ubicationURL, token);
+
+                  print('prueba numero 1 de reconocimiento de voz: ${resultado
+                      .statusCode}');
+                  print('enlace generado desde reonocimiento de voz inicialmente: $googleMapsLink');
+
+                  // Verifica el resultado del servicio
+                  if (resultado.statusCode == 200) {
+                    // Activa el botón SOS
+                    _toggleAlertButton();
+                    // Navega a la pantalla de envío de ubicación
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            SendLocation(),
+                        transitionsBuilder: (context, animation,
+                            secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                    // Muestra un mensaje de éxito
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Se envió el enlace exitosamente.'),
+                        duration: Duration(seconds: 4),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Estado diferente a 200.'),
+                        duration: Duration(seconds: 4),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } else {
+                  _stopListening();
+                  Future.delayed(Duration(seconds: 1), () {
+                    if (!_keywordDetected) {
+                      _startListening();
+                    }
+                  });
+                }
+              }
+            }
+          });
+
+          _speech.listen();
         }
 
-        Future.delayed(Duration(seconds: 1), () {
-          _speech.listen();
-        });
-        _startTimer();
-
       }
-    });
 
-    if(!_shouldStopListening){
-      _speech.listen();
+    void _stopListening() {
+      _shouldStopListening = true;
+      _speech.stop().then((_) {
+        if(mounted) {
+          setState(() {
+            _isListening = false;
+          });
+        }
+      });
     }
 
-  }
-
-  void _startTimer() {
-    // Inicia un temporizador de 60 segundos
-    _timer = Timer(Duration(seconds: 3600), () {
-      // Detiene la escucha de voz después de 60 segundos
-      _stopListening();
-    });
-  }
-
-  void _stopListening() {
-    _shouldStopListening = true;
-    _speech.stop().then((_) {
-      if(mounted) {
-        setState(() {
-          _isListening = false;
-        });
+    void _startListening() {
+      _shouldStopListening = false;
+      if(!_isListening){
+        _speech.listen();
       }
-    });
-    // Cancela el temporizador si se detiene la escucha antes de los 60 segundos
-    _timer.cancel();
-  }
+    }
 
-  Future<void> _showExitConfirmationDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title:Text('¿Salir de la aplicación?',
-            style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Center(child: Text('¿Estás seguro de que quieres salir de la aplicación?')),
-              ],
+    Future<void> _loadToken() async {
+      String? storedToken = await authBloc.getStoraredToken();
+      setState(() {
+        token = storedToken;
+      });
+
+      if(token!=null){
+        Map<String,dynamic> decodedToken = Jwt.parseJwt(token!);
+        if(decodedToken.containsKey('user_id')){
+          userId = decodedToken["user_id"];
+        }
+      }
+
+      await _getContactosEmergencia();
+      await _getKeyword();
+      if(keyword!=null) {
+        print("Palabra clave en home: $keyword");
+        _keywords.add(keyword!);
+        print("Lista actualmente: $_keywords");
+      }
+
+      if(contactosDeEmergencia == null || contactosDeEmergencia!.isEmpty){
+        _addContactModal();
+      }
+      if(contactosDeEmergencia!=null || contactosDeEmergencia!.isNotEmpty){
+        await _requestPermission();
+        await getLocation();
+        _initializeSpeechRecognition();
+      }
+    }
+
+      Future<void> _getContactosEmergencia() async {
+      try {
+        List<Map<String, dynamic>>? contactos = await GetContactEmergency(token);
+        setState(() {
+          contactosDeEmergencia = contactos;
+        });
+      } catch (e) {
+        print('Error al obtener contactos de emergencia: $e');
+      }
+
+    }
+
+    Future<void> _getKeyword() async{
+      try{
+
+        getKeywordCitizen? palabraClave = await getKeyWordService(token);
+        setState(() {
+          keyword = palabraClave?.keyword;
+        });
+      }catch(e){
+        print("Error al obtener palabra clave: $e");
+      }
+    }
+
+      Future<void>getLocation() async{
+      try{
+
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        setState(() {
+          latitude = position.latitude;
+          longitud = position.longitude;
+        });
+        // Obtener la dirección correspondiente a las coordenadas actuales
+        String? address = await _getAddressFromCoordinates(latitude!, longitud!);
+        if (address != null) {
+          // Actualizar la dirección en el estado del widget
+          setState(() {
+            address = address;
+          });
+        } else {
+          print('No se pudo obtener la dirección');
+          // Manejar el caso en el que no se pueda obtener la dirección
+        }
+
+      }catch(e){
+        print("Error al obtener la ubicación: $e");
+
+      }
+    }
+
+    String getGoogleMapsLink(){
+      if(latitude!=null && longitud!=null){
+        return 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitud';
+      }else{
+        return '';
+      }
+    }
+
+    Future<String> _getAddressFromCoordinates(double latitude, double longitude) async {
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+        if (placemarks.isNotEmpty) {
+          Placemark placemark = placemarks.first;
+          String street = placemark.thoroughfare ?? ''; // Nombre de la calle
+          String numero = placemark.street ?? '';
+          String subLocality = placemark.subLocality ?? ''; // Sublocalidad o barrio
+          String locality = placemark.locality ?? ''; // Localidad o ciudad
+          String administrativeArea = placemark.administrativeArea ?? ''; // Área administrativa (estado, provincia, región, etc.)
+          String country = placemark.country ?? ''; // País
+          String postalCode = placemark.postalCode ?? ''; // Código postal
+
+          // Construir la dirección con los datos disponibles
+          return '$street,$numero, $subLocality, $locality, $administrativeArea, $country, $postalCode';
+        } else {
+          return 'Dirección no disponible';
+        }
+      } catch (e) {
+        print("Error al obtener la dirección: $e");
+        return 'Error al obtener la dirección';
+      }
+    }
+
+    @override
+    void dispose() {
+      super.dispose();
+      if(mounted){
+        _stopListening();
+      }
+    }
+
+    Future<void> _showExitConfirmationDialog(BuildContext context) async {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title:Text('¿Salir de la aplicación?',
+              style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Center(child: Text('¿Estás seguro de que quieres salir de la aplicación?')),
+                ],
+              ),
             ),
-          ),
-          actions: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      child: Text('No'),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Cerrar el diálogo sin salir de la aplicación
-                      },
-                    ),
-                    TextButton(
-                      child: Text('Sí'),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Cerrar el diálogo
-                        _resetToken();
-                        final AuthBloc authBloc = AuthBloc();
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => LoginPage(authBloc: authBloc),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
-                            transitionDuration: Duration(milliseconds: 5),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                )
-          ],
-        );
-      },
-    );
-  }
+            actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        child: Text('No'),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Cerrar el diálogo sin salir de la aplicación
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Sí'),
+                        onPressed: () async{
+                          Navigator.of(context).pop(); // Cerrar el diálogo
+                          await authBloc.resetToken();
+                          Navigator.pushReplacement(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) => LoginPage(authBloc: authBloc),
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                              transitionDuration: Duration(milliseconds: 5),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  )
+            ],
+          );
+        },
+      );
+    }
 
   void _addContactModal() {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('¡Atención!',style: TextStyle(fontSize: 20.0),),
-        content: Text('No tienes contactos de emergencia debes agregar al menos uno para mandar tu ubicación.',textAlign: TextAlign.justify,),
-        actions: [
+    if(mounted){
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('¡Atención!',style: TextStyle(fontSize: 20.0),),
+          content: Text('No tienes contactos de emergencia debes agregar al menos uno para mandar tu ubicación.',
+            textAlign: TextAlign.justify,),
+          actions: [
 
-          TextButton(
+            TextButton(
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
@@ -387,49 +439,18 @@ class _HomeState extends State<Home>{
               },
               child: Text('Agregar contacto', textAlign: TextAlign.end),
             ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
 
-  @override
-  void dispose() {
-    _stopListening();
-    super.dispose();
-  }
 
   int   _selectedIndex = 0;
-static const TextStyle optionStyle = TextStyle(fontSize: 30,fontWeight: FontWeight.bold);
-
-static const List<Widget> widgetOptions = <Widget>[
-
-  Text(
-    'Index 0: Home',
-    style: optionStyle,
-  ),
-  Text(
-    'Index 1: Mi perfil',
-    style: optionStyle,
-  ),
-  Text(
-    'Index 2: Contactos',
-    style: optionStyle,
-  ),
-  Text(
-    'Index 3: Reportes',
-    style: optionStyle,
-  ),
-  Text(
-    'Index 4: Configura'
-  )
-
-];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-
-      _updateIconColors();
 
       switch (_selectedIndex) {
         case 0:
@@ -514,26 +535,9 @@ static const List<Widget> widgetOptions = <Widget>[
     });
   }
 
-  // Actualizar los colores de los íconos basados en el índice seleccionado
-  void _updateIconColors() {
-    setState(() {
-      // Restaurar el color predeterminado para todos los íconos
-      _iconColors = List<Color>.filled(5, Colors.grey[700]!);
-      // Actualizar el color del ícono seleccionado
-      _iconColors[_selectedIndex] = Colors.deepPurple;
-    });
-  }
-
-  List<Color?> _iconColors = [
-    Colors.deepPurple, // Home
-    Colors.grey[700], // Mi perfil
-    Colors.grey[700], // Contactos
-    Colors.grey[700], // Reportes
-    Colors.grey[700], // Configura
-  ];
-
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('home');
     Color buttonColor = isAlertButtonPressed ? Colors.blueAccent: Colors.black12;
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(

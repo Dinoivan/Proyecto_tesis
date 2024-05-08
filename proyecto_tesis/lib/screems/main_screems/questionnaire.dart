@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
-import 'package:proyecto_tesis/screems/authentication/login_screems.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
-import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
-import 'package:proyecto_tesis/screems/main_screems/home.dart';
-import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
 import 'package:proyecto_tesis/screems/main_screems/result.dart';
 
@@ -268,7 +264,7 @@ class _QuestionaireState extends State<Questionnaire> {
 
   @override
   Widget build(BuildContext context) {
-
+    authBloc.saveLastScreem('questionnaire');
     if(_isLoading){
       return Center(child: CircularProgressIndicator(),
       );

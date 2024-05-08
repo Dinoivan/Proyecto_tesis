@@ -29,6 +29,7 @@ class _PasswordFormFielState extends State<PasswordFormField>{
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -200,15 +201,44 @@ class _RegisterState extends State<Register>{
   bool _isLoading = false;
 
   @override
+  void InitState(){
+    super.initState();
+  }
+
+  @override
   void dispose(){
     widget.registerBloc.dispose();
     super.dispose();
   }
 
-  @override
-  void InitState(){
-    super.initState();
+  String _removeAccents(String text) {
+    final Map<String, String> accentMap = {
+      'á': 'a', 'Á': 'A',
+      'é': 'e', 'É': 'E',
+      'í': 'i', 'Í': 'I',
+      'ó': 'o', 'Ó': 'O',
+      'ú': 'u', 'Ú': 'U',
+      'à': 'a', 'À': 'A',
+      'è': 'e', 'È': 'E',
+      'ì': 'i', 'Ì': 'I',
+      'ò': 'o', 'Ò': 'O',
+      'ù': 'u', 'Ù': 'U',
+      'ä': 'a', 'Ä': 'A',
+      'ë': 'e', 'Ë': 'E',
+      'ï': 'i', 'Ï': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ü': 'u', 'Ü': 'U',
+    };
+
+    return text.replaceAllMapped(RegExp('[${accentMap.keys.join()}]'), (match) => accentMap[match.group(0)]!);
   }
+
+  String _accentuateCharacters(String text) {
+    // Elimina los caracteres especiales y permite solo letras, espacios y dígitos
+    String cleanText = _removeAccents(text); // Elimina los acentos primero
+    return cleanText.replaceAll(RegExp(r'[^\w\s]'), '');
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -432,10 +462,10 @@ class _RegisterState extends State<Register>{
                               });
 
                                 try{
-                                String fullname =_fullnameController.text;
+                                String fullname = _accentuateCharacters(_fullnameController.text);
                                 List<String>nameParts = fullname.split(' ');
                                 String firstname = nameParts.isNotEmpty ? nameParts[0]: '';
-                                String lastname = _lastNameController.text;
+                                String lastname = _accentuateCharacters(_lastNameController.text);
                                 String birthdayDate = widget.registerBloc.getCurrentBirthday()!;
                                 DateTime parsedDate = DateFormat('dd/MM/yyyy').parse(birthdayDate);
                                 String formattedBirthdayDate = DateFormat('yyyy-MM-dd').format(parsedDate);
@@ -447,7 +477,7 @@ class _RegisterState extends State<Register>{
                                 alias: firstname,
                                 birthdayDate: formattedBirthdayDate,
                                 email: email,
-                                firstname: firstname,
+                                firstname: fullname,
                                 fullname: fullname,
                                 lastname: lastname,
                                 password: password,);

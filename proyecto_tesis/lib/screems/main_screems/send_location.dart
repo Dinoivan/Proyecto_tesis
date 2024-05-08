@@ -59,13 +59,7 @@ class _SendLocationState extends State<SendLocation>{
   }
 
 
-
-
   Future<void> _startSendingLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if(permission == LocationPermission.denied){
-      return;
-    }
 
     _positionStreamSubscription = Geolocator.getPositionStream(
       desiredAccuracy: LocationAccuracy.bestForNavigation,
@@ -85,9 +79,8 @@ class _SendLocationState extends State<SendLocation>{
           });
         }
         //Obtener la dirección correspondiente a las coordenas
-
         String googleMapsLink = getGoogleMapsLink(); // Obtener el enlace de Google Maps con las coordenadas más recientes
-        _sendLocation(googleMapsLink); // Pasar el enlace de Google Maps a _sendLocation()
+        _sendLocation(googleMapsLink);
       }
     });
   }
@@ -270,6 +263,7 @@ class _SendLocationState extends State<SendLocation>{
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('send_location');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: SingleChildScrollView(

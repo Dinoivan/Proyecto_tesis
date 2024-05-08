@@ -6,6 +6,7 @@ import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/screems/main_screems/questionnaire.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
+import 'package:proyecto_tesis/main.dart';
 
 import 'emergency_contacts.dart';
 import 'home.dart';
@@ -122,6 +123,7 @@ class _TestState extends State<Test>{
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('questionnaire');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
 

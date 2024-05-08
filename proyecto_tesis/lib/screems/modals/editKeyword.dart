@@ -59,6 +59,34 @@ class  _EditKeywordModalState  extends State<EditKeywordModal> {
     }
   }
 
+  String _removeAccents(String text) {
+    final Map<String, String> accentMap = {
+      'á': 'a', 'Á': 'A',
+      'é': 'e', 'É': 'E',
+      'í': 'i', 'Í': 'I',
+      'ó': 'o', 'Ó': 'O',
+      'ú': 'u', 'Ú': 'U',
+      'à': 'a', 'À': 'A',
+      'è': 'e', 'È': 'E',
+      'ì': 'i', 'Ì': 'I',
+      'ò': 'o', 'Ò': 'O',
+      'ù': 'u', 'Ù': 'U',
+      'ä': 'a', 'Ä': 'A',
+      'ë': 'e', 'Ë': 'E',
+      'ï': 'i', 'Ï': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ü': 'u', 'Ü': 'U',
+    };
+
+    return text.replaceAllMapped(RegExp('[${accentMap.keys.join()}]'), (match) => accentMap[match.group(0)]!);
+  }
+
+  String _accentuateCharacters(String text) {
+    // Elimina los caracteres especiales y permite solo letras, espacios y dígitos
+    String cleanText = _removeAccents(text); // Elimina los acentos primero
+    return cleanText.replaceAll(RegExp(r'[^\w\s]'), '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -78,9 +106,9 @@ class  _EditKeywordModalState  extends State<EditKeywordModal> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, ingrese la palabra clave';
                   }
-                  final RegExp letterRegex = RegExp(r'^[a-zA-Z]+$');
+                  final RegExp letterRegex = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]+$');
                   if (!letterRegex.hasMatch(value)) {
-                    return 'Solo se permiten letras sin caracteres especiales ni números';
+                    return 'Solo se permiten letras y espacios, sin caracteres especiales ni números';
                   }
                   return null;
                 },
@@ -102,21 +130,22 @@ class  _EditKeywordModalState  extends State<EditKeywordModal> {
             ),
             TextButton(
               onPressed: () {
-                // Guarda los cambios y llama al servicio para actualizar el contacto
-                _updateContact();
+                // Verifica la validez del formulario antes de intentar guardar
+                if (_formKey.currentState?.validate() ?? false) {
+                  // El formulario es válido, procede a actualizar el contacto
+                  _updateContact();
+                } else {
+                  // El formulario no es válido, muestra un mensaje de advertencia
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Por favor, complete el formulario correctamente.'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
               },
               child: Text('Guardar'),
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                      (states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return null; // Permite que el botón esté desactivado visualmente
-                    }
-                    return Colors.transparent;
-                  },
-                ),
-              ),
-            ),
+            )
           ],
         )
       ],
@@ -124,27 +153,31 @@ class  _EditKeywordModalState  extends State<EditKeywordModal> {
   }
 
   void _updateContact() async {
-
-    // Obtén los nuevos valores de los campos
-    String keyword = _keywordController.text;
-    // Imprime los datos que estás enviando al servicio de actualización
-    print('Datos a enviar para actualizar:');
-    print('Palabra clave: $keyword');
-
-
-    // Llama al servicio de actualización
-    try {
-
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      // El formulario es válido, procede a actualizar el contacto
+      String keyword = _accentuateCharacters(_keywordController.text);
       print('Datos a enviar para actualizar:');
       print('Palabra clave: $keyword');
-      print("Id de la usuaria: $id");
-      print("Token: $token");
 
-      final updateKeyword_ = await updateKeyword(keyword, token, id);
+      try {
+        print('Datos a enviar para actualizar:');
+        print('Palabra clave: $keyword');
+        print("Id de la usuaria: $id");
+        print("Token: $token");
 
-      Navigator.of(context).pop(updateKeyword_);
-    } catch (e) {
-      print('Error al actualizar el contacto: $e');
+        final updateKeyword_ = await updateKeyword(keyword.toLowerCase(), token, id);
+        Navigator.of(context).pop(updateKeyword_);
+      } catch (e) {
+        print('Error al actualizar el contacto: $e');
+      }
+    } else {
+      // El formulario no es válido, muestra un mensaje de advertencia
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, complete el formulario correctamente.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 

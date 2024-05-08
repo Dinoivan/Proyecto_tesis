@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
-import 'package:proyecto_tesis/screems/authentication/login_screems.dart';
 import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
-import 'package:proyecto_tesis/screems/main_screems/keyword.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
@@ -215,6 +213,7 @@ class _HelpState extends State<Help>{
 
   @override
   Widget build(BuildContext context){
+    authBloc.saveLastScreem('help');
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
 

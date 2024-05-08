@@ -6,6 +6,7 @@ import 'package:proyecto_tesis/services/autentication/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:proyecto_tesis/services/autentication/password_recovery_service.dart';
 import '../../services/autentication/password_change_service.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class AuthBloc {
 
@@ -26,7 +27,32 @@ class AuthBloc {
 
   Future<String?> getStoraredToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      // Decodificar el token para obtener la fecha de expiración
+      Map<String, dynamic> decodedToken = Jwt.parseJwt(token);
+      int? exp = decodedToken['exp'];
+
+      print("Valor del token: $exp");
+
+      // Verificar si el token ha caducado
+      if (exp != null) {
+        int currentTimeInSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        if (exp < currentTimeInSeconds) {
+          // El token ha caducado, eliminarlo de SharedPreferences
+          await prefs.remove('token');
+          return null;
+        }
+      }
+    }
+
+    return token;
+  }
+
+  Future<void>resetToken() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
   }
 
   Future<PasswordRecoveryResponse> passwordRecovery(String email) async{
@@ -63,6 +89,17 @@ class AuthBloc {
       return true;
     }
     return false; // Si no hay token almacenado, el usuario no está autenticado
+  }
+
+  //Guardar la pantalla
+  Future<void> saveLastScreem(String screemName) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_screen', screemName);
+  }
+
+  Future<String?> getLastSCreem() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('last_screen');
   }
 
 }
