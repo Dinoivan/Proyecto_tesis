@@ -173,8 +173,9 @@ class _TestState extends State<Test>{
                     'Identificación de patrones',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                      fontSize: 22.0,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -187,6 +188,7 @@ class _TestState extends State<Test>{
                     'A continuación se respondera una serie de preguntas que permitiran identificar patrones',
                     style: TextStyle(
                       color: Color(0xFFAA4A4A4),
+                      fontFamily: 'Roboto',
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -194,7 +196,7 @@ class _TestState extends State<Test>{
                 ),
 
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 55),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 80),
                 ),
 
                 Form(
@@ -246,8 +248,9 @@ class _TestState extends State<Test>{
                                 'Empezar test',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18,
+                                  fontFamily: 'SF Pro Text',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14.0,
                                 ),
                               ),
 
@@ -271,15 +274,15 @@ class _TestState extends State<Test>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -289,13 +292,14 @@ class _TestState extends State<Test>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

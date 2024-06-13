@@ -479,7 +479,21 @@ class _ProfileState extends State<Profile>{
             children: <Widget>[
 
               Container(
-                margin: EdgeInsets.only(left: 30.0, top: 10.0),
+                padding: EdgeInsets.fromLTRB(32.0,5.0, 20.0, 10.0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Mi perfil',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    color: Colors.black,
+                    fontSize: 22.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              Container(
+                margin: EdgeInsets.only(left: 30.0, top: 15.0),
                 alignment: Alignment.centerLeft,
                 child: Stack(
                   children: [
@@ -577,7 +591,7 @@ class _ProfileState extends State<Profile>{
 
                     return Form(
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 30,
+                        padding: EdgeInsets.symmetric(vertical: 32.0,
                             horizontal: 30), // Solo
                         child: Column(
                           children: <Widget>[
@@ -586,7 +600,7 @@ class _ProfileState extends State<Profile>{
                               readOnly: !_isEditing,
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 15,
+                                fontSize: 15.0,
                               ),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚüÜ\s]')), // Permite letras y espacios, incluyendo acentos
@@ -607,13 +621,15 @@ class _ProfileState extends State<Profile>{
                                   borderSide: BorderSide(
                                       color: Colors.black26, width: 2.0),
                                 ),
-                                labelText: "Nombre",
-                                hintText: " Nombre",
+                                labelText: "Nombres",
+                                hintText: " Nombres",
                                 helperStyle: const TextStyle(
                                   color: Colors.black,
-                                  fontSize: 15,
+                                  fontSize: 15.0,
                                 ),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                               ),
+
                             ),
                             SizedBox(height: 20,),
                             TextFormField(
@@ -621,7 +637,7 @@ class _ProfileState extends State<Profile>{
                               readOnly: !_isEditing,
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 15,
+                                fontSize: 15.0,
                               ),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -643,8 +659,9 @@ class _ProfileState extends State<Profile>{
                                 hintText: " Apellidos",
                                 helperStyle: const TextStyle(
                                   color: Colors.black,
-                                  fontSize: 15,
+                                  fontSize: 15.0,
                                 ),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                               ),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z,áéíóúÁÉÍÓÚ\s]')), // Permite letras, coma y espacios
@@ -669,7 +686,7 @@ class _ProfileState extends State<Profile>{
                                 readOnly: !_isEditing,
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 15,
+                                  fontSize: 15.0,
                                 ),
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
@@ -691,8 +708,9 @@ class _ProfileState extends State<Profile>{
                                   hintText: " Fecha de nacimiento",
                                   helperStyle: const TextStyle(
                                     color: Colors.black,
-                                    fontSize: 15,
+                                    fontSize: 15.0,
                                   ),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                                 ),
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z,áéíóúÁÉÍÓÚ\s]')), // Permite letras, coma y espacios
@@ -725,9 +743,12 @@ class _ProfileState extends State<Profile>{
                                 labelText: "Correo",
                                 hintText: " Correo",
                                 helperStyle: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15,
+                                  color: Color(0xFFACACAC),
+                                  fontFamily: 'SF Pro Text',
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.normal,
                                 ),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                               ),
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z,áéíóúÁÉÍÓÚ\s]')), // Permite letras, coma y espacios
@@ -736,12 +757,12 @@ class _ProfileState extends State<Profile>{
 
                             const Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 30),
+                                  horizontal: 10, vertical: 45.0),
                             ),
 
                             SizedBox(
                               width: double.infinity,
-                              height: 55,
+                              height: 56,
                               child: ElevatedButton(
                                 onPressed: () async {
                                   //Obtener la fecha de nacimiento del controlador y convertirla al formato requerido
@@ -796,8 +817,9 @@ class _ProfileState extends State<Profile>{
                                     _isEditing ? 'Guardar' : 'Editar',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18,
+                                      fontFamily: 'SF Pro Text',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.0,
                                     ),
 
                                   ),
@@ -829,15 +851,15 @@ class _ProfileState extends State<Profile>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -847,12 +869,14 @@ class _ProfileState extends State<Profile>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
 

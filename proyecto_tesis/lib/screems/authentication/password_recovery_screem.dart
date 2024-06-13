@@ -64,13 +64,13 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
 
   Widget _buildTitle(){
     return Container(
-      margin: EdgeInsets.only(left: 40.0,top: 10.0), // Agrega un margen a la izquierda
+      margin: EdgeInsets.only(left: 40.0,top: 20.0), // Agrega un margen a la izquierda
       alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
       child: Text(
         'Recuperar contraseña',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 30.0,
+          fontSize: 24.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -84,7 +84,7 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 40),
         child: Column(
           children: <Widget>[
-            SizedBox(height: 5.0,),
+            SizedBox(height: 15.0,),
             _buildEmailFormField(),
             SizedBox(height: 25.0,),
             _buildSubmitButton(),
@@ -115,7 +115,7 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
         ),
         labelText:  _emailController.text.isEmpty ? "Correo": "",
         hintText: _emailController.text.isEmpty ? "": "Correo",
@@ -126,7 +126,7 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
           color: Colors.black38,
           fontSize: 15,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.emailAddress,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -188,7 +188,7 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
-      height: 55,
+      height: 56,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _validateForm,
         style: ButtonStyle(
@@ -207,7 +207,7 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-            fontSize: 18.0,
+            fontSize: 16.0,
           ),
         ),
       ),

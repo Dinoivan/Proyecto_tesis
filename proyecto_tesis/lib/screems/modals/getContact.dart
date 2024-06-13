@@ -55,17 +55,35 @@ class _GetContactModalState extends State<GetContactModal> {
             TextFormField(
               controller: _fullnameController,
               readOnly: true,
-              decoration: InputDecoration(labelText: 'Nombre completo',border: InputBorder.none),
+              decoration: InputDecoration(
+                  labelText: 'Nombre completo',
+                  labelStyle: TextStyle(fontSize: 18.0),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.fromLTRB(0,-10.0, 0, 10),),
+              style: TextStyle(fontSize: 14.0),
             ),
             TextFormField(
               controller: _phoneNumberController,
               readOnly: true,
-              decoration: InputDecoration(labelText: 'Número de teléfono', border: InputBorder.none),
+              decoration: InputDecoration(
+                  labelText: 'Número de teléfono',
+                  labelStyle: TextStyle(fontSize: 18.0),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.fromLTRB(0,0, 0, 10)),
+              style: TextStyle(fontSize: 14.0),
             ),
             TextFormField(
               controller: _relationshipController,
               readOnly: true,
-              decoration: InputDecoration(labelText: 'Relación',border: InputBorder.none),
+              decoration: InputDecoration(
+                  labelText: 'Relación',
+                  labelStyle: TextStyle(fontSize: 18.0),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.fromLTRB(0,0, 0, 10)),
+              style: TextStyle(fontSize: 14.0),
             ),
           ],
         ),

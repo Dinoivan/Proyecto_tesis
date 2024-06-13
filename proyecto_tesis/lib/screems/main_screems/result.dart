@@ -93,8 +93,9 @@ class RiskCircularChart extends StatelessWidget {
         color: riskColors[4], // Usar el color correspondiente al quinto riesgo
         title: '',
         titleStyle: TextStyle(
+          fontFamily: 'Roboto',
           fontSize: 11,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.normal,
           color: Colors.black,
         ),
         radius: sectionRadius,
@@ -389,28 +390,32 @@ class _ResultState extends State<Result> {
               Text(
                 'Nivel de Riesgo',
                 style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: Colors.black,
-                  fontSize: 25.0,
+                  fontSize: 22.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               Form(
                 child: Container(
-                  padding: EdgeInsets.all(30),
+                  padding: EdgeInsets.fromLTRB(30, 10, 30, 30),
                   child: Column(
                     children: <Widget>[
                       Container(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.topCenter,
                         child: Text(
                           'Conoce los resultados del test de identificación de patrones:',
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                             color: Color(0xFFCA4A4A4),
-                            fontSize: 15.0,
+                            fontFamily: 'SF Pro Text',
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
-                        SizedBox(height: 10.0,),
+                        SizedBox(height: 5.0,),
 
                         // Reemplazar la imagen con RiskChart
                          RiskCircularChart(
@@ -483,7 +488,7 @@ class _ResultState extends State<Result> {
                                 children: [
                                   Text(
                                     riskData.risk,
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(fontWeight: FontWeight.normal,fontFamily: 'Roboto',fontSize: 14.0),
                                   ),
                                   Text(
                                     '<= ${riskData.value}%',
@@ -516,16 +521,16 @@ class _ResultState extends State<Result> {
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -534,13 +539,14 @@ class _ResultState extends State<Result> {
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
       // Mostrar el SnackBar cuando _showSuccessMessage sea verdadero

@@ -99,7 +99,8 @@ class  _EditKeywordModalState  extends State<EditKeywordModal> {
             children: [
               TextFormField(
                 controller: _keywordController,
-                decoration: InputDecoration(labelText: 'Palabra clave'),
+                decoration: InputDecoration(labelText: 'Palabra clave',labelStyle: TextStyle(fontSize: 18.0)),
+                style: TextStyle(fontSize: 14.0),
                 keyboardType: TextInputType.text,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {

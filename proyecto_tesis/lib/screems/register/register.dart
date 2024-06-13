@@ -52,20 +52,30 @@ class _PasswordFormFielState extends State<PasswordFormField>{
           borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
+        focusedBorder:OutlineInputBorder(
+          borderRadius:BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26,width: 2.0),
+        ),
         labelText:  widget.passwordcontroller.text.isEmpty ? "Contraseña": "",
           hintText: widget.passwordcontroller.text.isEmpty ? "": "Contraseña",
-        labelStyle:TextStyle(fontSize: 15.0, color: Colors.black),
+        labelStyle:TextStyle(fontSize: 15.0, color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
+          fontWeight: FontWeight.normal,),
         hintStyle:TextStyle(
-          color: Colors.black,
-          fontSize:15.0
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
+          fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
         suffixIcon: GestureDetector(
           onTap: _togglePasswordVisibility,
           child: Icon(
             _obscureText ? Icons.visibility_off :Icons.visibility,
-            color: Colors.black,
+            color: Colors.grey,
           ),
-        )
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
+
       ),
       keyboardType: TextInputType.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -130,23 +140,29 @@ class _DateWidgetState extends State<DateWidget>{
     return TextFormField(
       controller: _dateController,
       decoration: InputDecoration(
-        suffixIcon: Icon(Icons.calendar_today,color: Colors.black,),
-        labelText: _dateController.text.isEmpty ? "Seleccione tu fecha de nacimiento": "",
-        hintText: _dateController.text.isEmpty ? "": "Seleccione tu fecha de nacimiento",
-        labelStyle:TextStyle(fontSize: 15.0, color: Colors.black),
+        suffixIcon: Icon(Icons.calendar_today,color: Colors.grey,),
+        labelText: _dateController.text.isEmpty ? "Fecha de nacimiento": "",
+        hintText: _dateController.text.isEmpty ? "": "Fecha de nacimiento",
+        labelStyle:TextStyle(fontSize: 15.0, color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
+          fontWeight: FontWeight.normal,),
         hintStyle:TextStyle(
             color: Colors.black,
             fontSize:15.0
         ),
-        border: OutlineInputBorder(
-          borderRadius:BorderRadius.circular(5),
+        border:OutlineInputBorder(
+          borderRadius:BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
+        ),
+        enabledBorder:OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
         focusedBorder:OutlineInputBorder(
-          borderSide:BorderSide(color: Colors.black26,width: 2.0),
-          borderRadius:BorderRadius.circular(5),
-
+          borderRadius:BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       readOnly: true,
       onTap: () async{
@@ -201,7 +217,7 @@ class _RegisterState extends State<Register>{
   bool _isLoading = false;
 
   @override
-  void InitState(){
+  void initState(){
     super.initState();
   }
 
@@ -284,19 +300,21 @@ class _RegisterState extends State<Register>{
                 child: Text(
                   'Registro',
                       style: TextStyle(
+                        fontFamily: 'Roboto',
                         color: Colors.black,
-                        fontSize: 30.0,
+                        fontSize: 22.0,
                         fontWeight: FontWeight.bold,
                       ),
+                   ),
                 ),
-              ),
+
                 Form(
                   key: _formKey,
                   child: Container(
-                    padding: EdgeInsets.all(30),
+                    padding: EdgeInsets.fromLTRB(30, 20, 30, 30),
                     child: Column(
-                      children: <Widget>[
 
+                      children: <Widget>[
                         TextFormField(
                           controller: _fullnameController,
                           onChanged: (fullname){
@@ -304,7 +322,7 @@ class _RegisterState extends State<Register>{
                           },
                           style: TextStyle(
                             color:Colors.black,
-                            fontSize:15,
+                            fontSize:15.0,
                           ),
                           decoration: InputDecoration(
                             border:OutlineInputBorder(
@@ -319,16 +337,21 @@ class _RegisterState extends State<Register>{
                               borderRadius:BorderRadius.circular(5.0),
                               borderSide: BorderSide(color: Colors.black26,width: 2.0),
                             ),
-                            labelText: _fullnameController.text.isEmpty ? "Nombre completo": "",
+                            labelText: _fullnameController.text.isEmpty ? "Nombres ": "",
                             labelStyle: const TextStyle(
-                              color: Colors.black,
+                              color: Color(0xFFACACAC),
+                              fontFamily: 'SF Pro Text',
                               fontSize: 15.0,
+                              fontWeight: FontWeight.normal,
                             ),
-                            hintText: _fullnameController.text.isEmpty ? " ": "Nombre completo",
+                            hintText: _fullnameController.text.isEmpty ? " ": "Nombres",
                             helperStyle: const TextStyle(
-                              color: Colors.black,
+                              color: Color(0xFFACACAC),
+                              fontFamily: 'SF Pro Text',
                               fontSize: 15.0,
+                              fontWeight: FontWeight.normal,
                             ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                           ),
                           keyboardType: TextInputType.text,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -352,7 +375,7 @@ class _RegisterState extends State<Register>{
                         },
                         style: TextStyle(
                           color:Colors.black,
-                          fontSize:15,
+                          fontSize:15.0,
                         ),
                         decoration: InputDecoration(
                           border:OutlineInputBorder(
@@ -369,14 +392,19 @@ class _RegisterState extends State<Register>{
                           ),
                           labelText: _lastNameController.text.isEmpty ? "Apellidos": "",
                           labelStyle: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15.0
+                            color: Color(0xFFACACAC),
+                            fontFamily: 'SF Pro Text',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.normal,
                           ),
                           hintText:  _lastNameController.text.isEmpty ? "": " Apellidos",
                           helperStyle: const TextStyle(
-                            color: Colors.black,
+                            color: Color(0xFFACACAC),
+                            fontFamily: 'SF Pro Text',
                             fontSize: 15.0,
+                            fontWeight: FontWeight.normal,
                           ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                         ),
                         keyboardType: TextInputType.text,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -403,7 +431,7 @@ class _RegisterState extends State<Register>{
                         },
                         style: TextStyle(
                           color:Colors.black,
-                          fontSize:15,
+                          fontSize:15.0,
                         ),
                         decoration: InputDecoration(
                           border:OutlineInputBorder(
@@ -420,14 +448,19 @@ class _RegisterState extends State<Register>{
                           ),
                           labelText: _emailController.text.isEmpty ? "Correo": "",
                           labelStyle: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15.0
+                            color: Color(0xFFACACAC),
+                            fontFamily: 'SF Pro Text',
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.normal,
                           ),
                           hintText:  _emailController.text.isEmpty  ? "": "Correo",
                           helperStyle: const TextStyle(
-                            color: Colors.black,
+                            color: Color(0xFFACACAC),
+                            fontFamily: 'SF Pro Text',
                             fontSize: 15.0,
+                            fontWeight: FontWeight.normal,
                           ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -436,7 +469,7 @@ class _RegisterState extends State<Register>{
                             return 'Por favor, ingrese un correo electrónico';
                           }
                           if (!value.contains('@') || !value.contains('.')) {
-                            return 'Ingrese un correo eléctrónico válido hola';
+                            return 'Ingrese un correo eléctrónico válido';
                           }
                           return null;
                         },
@@ -446,12 +479,12 @@ class _RegisterState extends State<Register>{
                       PasswordFormField(passwordcontroller: _passwordController, registerBloc: widget.registerBloc),
 
                       const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 40),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 107),
                       ),
 
                       SizedBox(
                         width: double.infinity,
-                        height: 55,
+                        height: 56,
                         child: ElevatedButton(
 
                           onPressed: () async {
@@ -533,11 +566,11 @@ class _RegisterState extends State<Register>{
                             ),
 
                           child: _isLoading ? CircularProgressIndicator() :  Text(
-                            'Registrar',
+                            'Registro',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
-                              fontSize: 18,
+                              fontSize: 14.0,
                             ),
                           ),
 

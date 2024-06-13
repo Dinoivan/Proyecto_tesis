@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
+
 import 'home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +11,7 @@ import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/models/screems/add_contacts_model.dart';
 import 'package:proyecto_tesis/services/sreems/add_contacts_service.dart';
 import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
+import 'package:flutter/services.dart';
 
 class AddContacts extends StatefulWidget{
 
@@ -110,8 +113,52 @@ class _AddContactsState extends State<AddContacts>{
             ),
           );
           break;
+
+        case 4:
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => Configuration(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: Duration(milliseconds: 5),
+            ),
+          );
+          break;
       }
     });
+  }
+
+  String _removeAccents(String text) {
+    final Map<String, String> accentMap = {
+      'á': 'a', 'Á': 'A',
+      'é': 'e', 'É': 'E',
+      'í': 'i', 'Í': 'I',
+      'ó': 'o', 'Ó': 'O',
+      'ú': 'u', 'Ú': 'U',
+      'à': 'a', 'À': 'A',
+      'è': 'e', 'È': 'E',
+      'ì': 'i', 'Ì': 'I',
+      'ò': 'o', 'Ò': 'O',
+      'ù': 'u', 'Ù': 'U',
+      'ä': 'a', 'Ä': 'A',
+      'ë': 'e', 'Ë': 'E',
+      'ï': 'i', 'Ï': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ü': 'u', 'Ü': 'U',
+    };
+
+    return text.replaceAllMapped(RegExp('[${accentMap.keys.join()}]'), (match) => accentMap[match.group(0)]!);
+  }
+
+  String _accentuateCharacters(String text) {
+    // Elimina los caracteres especiales y permite solo letras, espacios y dígitos
+    String cleanText = _removeAccents(text); // Elimina los acentos primero
+    return cleanText.replaceAll(RegExp(r'[^\w\s]'), '');
   }
 
   @override
@@ -161,15 +208,15 @@ class _AddContactsState extends State<AddContacts>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -179,13 +226,14 @@ class _AddContactsState extends State<AddContacts>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );
@@ -199,7 +247,7 @@ class _AddContactsState extends State<AddContacts>{
         'Agregar contactos',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 25.0,
+          fontSize: 24.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -219,7 +267,7 @@ class _AddContactsState extends State<AddContacts>{
             SizedBox(height: 20,),
             _buildRelacionFormField(),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 130),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 149),
             ),
             _buildSubmitButton(),
           ],
@@ -250,14 +298,19 @@ class _AddContactsState extends State<AddContacts>{
         ),
         labelText: _nameController.text.isEmpty ? "Nombre": "",
         labelStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
         hintText: _nameController.text.isEmpty ? " ": "Nombre",
         helperStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal
         ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -297,14 +350,19 @@ class _AddContactsState extends State<AddContacts>{
         ),
         labelText: _celularController.text.isEmpty ? "Celular": "",
         labelStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
-        hintText: _celularController.text.isNotEmpty ? " ": "Celular",
+        hintText: _celularController.text.isEmpty ? " ": "Celular",
         helperStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.number,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -347,14 +405,19 @@ class _AddContactsState extends State<AddContacts>{
         ),
         labelText: _relacionController.text.isEmpty ? "Relación familiar": "",
         labelStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
         hintText: _relacionController.text.isEmpty ? " ": "Relación familar",
         helperStyle: const TextStyle(
-          color: Colors.black,
+          color: Color(0xFFACACAC),
+          fontFamily: 'SF Pro Text',
           fontSize: 15.0,
+          fontWeight: FontWeight.normal,
         ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -386,9 +449,9 @@ class _AddContactsState extends State<AddContacts>{
         });
         // Llama al servicio para agregar el contacto
         ContactoEmergencia nuevoContacto = ContactoEmergencia(
-          fullname: _nameController.text,
+          fullname: _accentuateCharacters(_nameController.text)   ,
           phonenumber: celularConPrefijo,
-          relationship: _relacionController.text,
+          relationship: _accentuateCharacters(_relacionController.text),
         );
 
         AddContactsResponse response = await Agregar(nuevoContacto, token);
@@ -431,7 +494,7 @@ class _AddContactsState extends State<AddContacts>{
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
-      height: 55,
+      height: 56,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _validateForm,
         style: ButtonStyle(
@@ -454,8 +517,9 @@ class _AddContactsState extends State<AddContacts>{
           'Guardar',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 18.0,
+            fontFamily: 'SF Pro Text',
+            fontWeight: FontWeight.w500,
+            fontSize: 14.0,
           ),
         ),
       ),

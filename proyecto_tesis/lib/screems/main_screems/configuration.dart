@@ -5,12 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:proyecto_tesis/blocs/register/register_bloc.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/screems/authentication/login_screems.dart';
+import 'package:proyecto_tesis/screems/main_screems/head_map.dart';
 import 'package:proyecto_tesis/screems/main_screems/help.dart';
 import 'package:proyecto_tesis/screems/main_screems/keyword.dart';
 import 'package:proyecto_tesis/screems/main_screems/profile.dart';
 import 'package:proyecto_tesis/blocs/autentication/auth_bloc.dart';
 import 'package:proyecto_tesis/screems/main_screems/report.dart';
 import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
+import 'package:proyecto_tesis/screems/modals/showDate.dart';
+import 'package:proyecto_tesis/screems/modals/panicButton.dart';
+import 'package:proyecto_tesis/screems/main_screems/chatGPT.dart';
 import 'home.dart';
 
 class Configuration extends StatefulWidget{
@@ -43,6 +47,22 @@ class _ConfigurationState extends State<Configuration>{
     {
       'name': 'Número de ayuda',
       'icon': Icons.call,
+    },
+    {
+      'name': 'Mapa de calor',
+      'icon': Icons.map,
+    },
+    {
+      'name': 'Créditos',
+      'icon': Icons.person_outline,
+    },
+    {
+      'name': 'Resolver dudas con ChatGPT',
+      'icon': Icons.chat_bubble_outline,
+    },
+    {
+      'name': 'Botón de pánico',
+      'icon': Icons.radio_button_checked_sharp,
     },
     {
       'name': 'Cerrar sesión',
@@ -170,8 +190,6 @@ class _ConfigurationState extends State<Configuration>{
     });
   }
 
-
-
   List<Color?> _iconColors = [
     Colors.grey[700], // Home
     Colors.grey[700], // Mi perfil
@@ -233,6 +251,26 @@ class _ConfigurationState extends State<Configuration>{
     );
   }
 
+  Future<void> _showCreditsDialog(BuildContext context) async {
+    await showDialog(
+      barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
+      context: context,
+      builder: (BuildContext context) {
+        return StaticContactModal();
+      },
+    );
+  }
+
+  Future<void> _showPanicButton(BuildContext context) async {
+    await showDialog(
+      barrierDismissible: false, // El diálogo no se puede cerrar tocando afuera
+      context: context,
+      builder: (BuildContext context) {
+        return PanicButtonModal();
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context){
@@ -273,18 +311,17 @@ class _ConfigurationState extends State<Configuration>{
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Container(
-                      margin: EdgeInsets.only(top: 5.0),
                       alignment: Alignment.center,
                       child: Text(
                         'Mis configuraciones',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 23.0,
+                          fontSize: 22.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: 20),
                     // Lista de contactos
                     if (contactosDeEmergencia != null && contactosDeEmergencia!.isNotEmpty)
                       Column(
@@ -368,6 +405,44 @@ class _ConfigurationState extends State<Configuration>{
                                 );
                                 break;
 
+                              case 'Mapa de calor':
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) => HeadMap(),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                  ),
+                                );
+                                break;
+
+                              case 'Créditos':
+                                await _showCreditsDialog(context);
+                                break;
+
+                              case 'Resolver dudas con ChatGPT':
+                                Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) => ChatScreen(),
+                                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                  ),
+                                );
+                                break;
+
+                              case 'Botón de pánico':
+                                await _showPanicButton(context);
+                                break;
+
                               case 'Cerrar sesión':
                                 await _showExitConfirmationDialog(context);
                                 break;
@@ -396,8 +471,8 @@ class _ConfigurationState extends State<Configuration>{
                                 Text(
                                   contacto['name'],
                                   style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ],
@@ -431,15 +506,15 @@ class _ConfigurationState extends State<Configuration>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -449,13 +524,14 @@ class _ConfigurationState extends State<Configuration>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

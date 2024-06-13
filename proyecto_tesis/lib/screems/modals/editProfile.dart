@@ -90,7 +90,8 @@ class _EditCitizenModalState extends State<EditCitizenModal> {
             children: [
               TextFormField(
                 controller: _firstNameController,
-                decoration: InputDecoration(labelText: 'Nombre'),
+                decoration: InputDecoration(labelText: 'Nombre',  labelStyle: TextStyle(fontSize: 18.0),),
+                style: TextStyle(fontSize: 14.0),
                 keyboardType: TextInputType.text,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -106,7 +107,8 @@ class _EditCitizenModalState extends State<EditCitizenModal> {
               ),
               TextFormField(
                 controller: _lastNameController,
-                decoration: InputDecoration(labelText: 'Apellidos'),
+                decoration: InputDecoration(labelText: 'Apellidos',labelStyle: TextStyle(fontSize: 18.0),),
+                style: TextStyle(fontSize: 14.0),
                 keyboardType: TextInputType.text,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -124,6 +126,7 @@ class _EditCitizenModalState extends State<EditCitizenModal> {
                 controller: _birthdayDateController,
                 decoration: InputDecoration(
                   labelText: 'Fecha de nacimiento',
+                  labelStyle: TextStyle(fontSize: 18.0),
                   suffixIcon: InkWell(
                     onTap: () {
                       _selectDate(context, _birthdayDateController);
@@ -131,6 +134,7 @@ class _EditCitizenModalState extends State<EditCitizenModal> {
                     child: Icon(Icons.calendar_today),
                   ),
                 ),
+                style: TextStyle(fontSize: 14.0),
                 keyboardType: TextInputType.datetime,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value){
@@ -146,7 +150,8 @@ class _EditCitizenModalState extends State<EditCitizenModal> {
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Correo'),
+                decoration: InputDecoration(labelText: 'Correo',labelStyle: TextStyle(fontSize: 18.0)),
+                style: TextStyle(fontSize: 14.0),
                 keyboardType: TextInputType.emailAddress,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {

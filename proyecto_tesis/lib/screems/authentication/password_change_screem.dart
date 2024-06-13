@@ -67,13 +67,13 @@ class _PasswordChangeState extends State<PasswordChange> {
 
   Widget _buildTitle(){
     return Container(
-      margin: EdgeInsets.only(left: 40.0,top: 10),
+      margin: EdgeInsets.only(left: 40.0,top: 20),
       alignment: Alignment.centerLeft,
       child: Text(
         'Cambiar contraseña',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 30.0,
+          fontSize: 24.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -87,12 +87,13 @@ class _PasswordChangeState extends State<PasswordChange> {
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 40),
         child: Column(
           children: <Widget>[
+            SizedBox(height: 15.0,),
             _buildCodigoFormField(),
             const SizedBox(height: 20),
             _buildNewPasswordFormField(),
             const SizedBox(height: 40.0),
             _buildSubmitButton(),
-            SizedBox(height: 10.0,),
+            SizedBox(height: 20.0,),
             _buildLoginPageButton(),
             // Campos del formulario...
           ],
@@ -119,7 +120,7 @@ class _PasswordChangeState extends State<PasswordChange> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
         ),
         labelText: _codigoController.text.isEmpty ? "Código": "",
         labelStyle: const TextStyle(
@@ -130,7 +131,7 @@ class _PasswordChangeState extends State<PasswordChange> {
           color: Colors.black38,
           fontSize: 15,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.number,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -170,7 +171,7 @@ class _PasswordChangeState extends State<PasswordChange> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
         ),
         labelText: _passwordController.text.isEmpty ? "Contraseña": "",
         labelStyle: const TextStyle(
@@ -181,7 +182,7 @@ class _PasswordChangeState extends State<PasswordChange> {
           color: Colors.black38,
           fontSize: 15,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -278,7 +279,7 @@ class _PasswordChangeState extends State<PasswordChange> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-            fontSize: 18.0,
+            fontSize: 16.0,
           ),
         ),
       ),

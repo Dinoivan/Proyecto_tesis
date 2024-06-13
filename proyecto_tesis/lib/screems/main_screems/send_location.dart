@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:proyecto_tesis/main.dart';
 import 'package:proyecto_tesis/models/screems/ubicacation_model.dart';
@@ -79,7 +80,7 @@ class _SendLocationState extends State<SendLocation>{
           });
         }
         //Obtener la dirección correspondiente a las coordenas
-        String googleMapsLink = getGoogleMapsLink(); // Obtener el enlace de Google Maps con las coordenadas más recientes
+        String googleMapsLink = getGoogleMapsLink(); // Obtener el enlace de Google Maps
         _sendLocation(googleMapsLink);
       }
     });
@@ -265,205 +266,269 @@ class _SendLocationState extends State<SendLocation>{
   Widget build(BuildContext context){
     authBloc.saveLastScreem('send_location');
     double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: SingleChildScrollView(
-
-        child: Container(
-          alignment: Alignment.topCenter,
-          constraints: BoxConstraints(
-            minHeight: screenHeight,
-          ),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-
-                Stack(
-                  children: [
-                    Container(
+      body: Stack(
+        children: [
+          // AppBar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => Home(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 5),
+                      ),
+                    );
+                  },
+                  child: AppBar(
+                    backgroundColor: Colors.transparent, // Hacemos el AppBar transparente
+                    elevation: 0, // Quitamos la sombra del AppBar
+                    leading: Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 0, 0), // Margen para el círculo blanco
                       decoration: BoxDecoration(
-                        color: Color(0xFFF55B60),
-                        borderRadius: BorderRadius.circular(20),
+                        shape: BoxShape.circle,
+                        color: Colors.white, // Fondo blanco del círculo
                       ),
-                      height: 200, // Altura del fondo rojo general
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 50),
-                          child: Text(
-                            "SOS",
-                            style: TextStyle(
-                              fontSize: 25.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0), // Padding interno para el ícono
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.black87, // Color del icono
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Home(),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    return FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    );
-                                  },
-                                  transitionDuration: Duration(milliseconds: 5),
-                                ),
-                              );
-                            },
-                            child: AppBar(
-                              backgroundColor: Colors.transparent, // Hacemos el AppBar transparente
-                              elevation: 0, // Quitamos la sombra del AppBar
-                              leading: Container(
-                                margin: EdgeInsets.fromLTRB(10, 10, 0, 0), // Margen para el círculo blanco
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white, // Fondo blanco del círculo
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0), // Padding interno para el ícono
-                                  child: Icon(
-                                    Icons.arrow_back,
-                                    color: Colors.black87, // Color del icono
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "!Necesito ayuda! Esta es mi",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.0,
-                                ),
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "ubicación",
-                                      style: TextStyle(
-                                        color: Colors.white, // Color resaltado
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20.0,
-                                      ),
-                                    ),TextSpan(
-                                      text: " en tiempo real.",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20.0,
-                                      ),
-                                    ),
-
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                Form(
-                  child: Container(
-                    color: Colors.grey[100],
-                    padding: EdgeInsets.all(30),
-                    child: Column(
-                      children: <Widget>[
-
-
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 180),
-                        ),
-                        // Texto indicando que el mensaje fue enviado
-                        Text(
-                          'Enviado a todos los contactos de emergencia seleccionados',
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15.0,
-                          ),
-                        ),
-
-                        SizedBox(height: 10,),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _stopSendingLocation,
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
-                              overlayColor: MaterialStateProperty.resolveWith<Color>((states){
-                                if(states.contains(MaterialState.disabled)){
-                                  return Colors.grey.withOpacity(0.5);
-                                }
-                                return Colors.transparent;
-                              }),
-                              shape: MaterialStateProperty.all<OutlinedBorder>(
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0))
-                              ),
-
-
-                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                EdgeInsets.symmetric(vertical:10.0),
-                              ),
-
-                            ),
-
-                            child: _isLoading ? CircularProgressIndicator() :  Text(
-                              'Dejar de compartir',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18.0,
-                              ),
-                            ),
-
-                          ),
-
-                        ),
-
-                      ],
                     ),
                   ),
                 ),
-
-              ]
-
+              ],
+            ),
           ),
-        ),
+          //
+
+          Container(
+            width: double.infinity,
+            color: Color(0xFFB9484B),
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 150.0), // Agrega espacio arriba del círculo
+              child: OverflowBox(
+                maxWidth: double.infinity,
+                maxHeight: double.infinity,
+                child: Container(
+                  width: screenWidth * 1.120,
+                  height: screenWidth * 1.120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: Color(0xFFCF4D51),
+                      width: 87,
+                    ),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: screenWidth * 0.789,
+                      height: screenWidth * 0.789,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFF55B60),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'SOS',
+                              style: TextStyle(
+                                fontFamily: 'SF Pro Text',
+                                fontSize: screenWidth * 0.13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '¡Necesito ayuda! Esta es mi ',
+                              style: TextStyle(
+                                fontFamily: 'SF Pro Text',
+                                fontSize: 14.0,
+                                color: Color(0xFFFFFFFF),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'ubicación ',
+                                      style: TextStyle(
+                                        fontFamily: 'SF Pro Text',
+                                        color: Color(0xFFFFFFFF),
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+
+                                    TextSpan(
+                                      text: 'en tiempo real.',
+                                      style: TextStyle(
+                                        fontFamily: 'SF Pro Text',
+                                        color: Color(0xFFFFFFFF),
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ]
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 50, 0, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => Home(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 5),
+                      ),
+                    );
+                  },
+                  child: AppBar(
+                    backgroundColor: Colors.transparent, // Hacemos el AppBar transparente
+                    elevation: 0, // Quitamos la sombra del AppBar
+                    leading: Container(
+                      margin: EdgeInsets.fromLTRB(10, 10, 0, 0), // Margen para el círculo blanco
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white, // Fondo blanco del círculo
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0), // Padding interno para el ícono
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.black87, // Color del icono
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Positioned(
+            top: screenHeight*0.700, // Ajuste la posición vertical del contenedor del círculo
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              alignment: Alignment.center,
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(30, 20, 30, 30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
+              ),
+              child: Column(
+                children: <Widget>[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  Text(
+                    '¡Enviado a todos los contactos de emergencia seleccionados!',
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                      fontFamily: 'SF Pro Text',
+                      color: Color(0xFF5C5C75),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _stopSendingLocation,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
+                        overlayColor: MaterialStateProperty.resolveWith<Color>((states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.grey.withOpacity(0.5);
+                          }
+                          return Colors.transparent;
+                        }),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0)),
+                        ),
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.symmetric(vertical: 5.0),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator()
+                          : Text(
+                        'Dejar de compartir',
+                        style: TextStyle(
+                          fontFamily: 'SF Pro Text',
+                          color: Colors.white,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -473,13 +538,14 @@ class _SendLocationState extends State<SendLocation>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

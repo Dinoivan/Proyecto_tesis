@@ -294,7 +294,7 @@ class _QuestionaireState extends State<Questionnaire> {
             automaticallyImplyLeading: false,// Centra el título del AppBar
             actions: [
               Container(
-                margin: EdgeInsets.only(top: 10,right: 10.0),
+                padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -308,15 +308,15 @@ class _QuestionaireState extends State<Questionnaire> {
                       ),
                     ),
                     Positioned(
-                      left: 0,
+                      left: 10,
                       right: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Salir', style: TextStyle(color: Colors.black)), // Espacio entre el texto y el icono "x"
+                          Text('Salir', style: TextStyle(color: Color(0xFF7A72DE))),
                           IconButton(
                             onPressed: _showExitConfirmationDialog,
-                            icon: Icon(Icons.close, color: Colors.black),
+                            icon: Icon(Icons.close, color: Color(0xFF7A72DE),size: 20,),
                           ),
                         ],
                       ),
@@ -329,126 +329,163 @@ class _QuestionaireState extends State<Questionnaire> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'Identificación de Patrones',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-
-            SizedBox(height: 5,),
-            Text(
-              "${preguntaActualIndex + 1}. ${preguntaActual.questionText}",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                for (int i = 0; i < preguntaActual.options.length; i++)
-                  InkWell(
-                    onTap: () {
-                      handleOptionSelected(i);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: selectedOptionIndex == i
-                            ? Colors.blueAccent.withOpacity(0.2)
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: selectedOptionIndex == i
-                              ? Colors.blueAccent
-                              : Colors.grey,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${String.fromCharCode(i + 65)}. ${preguntaActual.options[i].optionText}",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          selectedOptionIndex == i
-                              ? Icon(
-                            Icons.check,
-                            color: Colors.blueAccent,
-                          )
-                              : SizedBox.shrink(),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            // Mostrar input de texto para preguntas sin opciones
-            if (preguntaActual.options.isEmpty)
-
-              TextFormField(
-                controller: respuestaAbiertaController,
-                focusNode: respuestaAbiertaFocusNode,
-                onChanged: (text) {
-                  setState(() {
-                    // Actualizar el estado con el texto ingresado por el usuario
-                    respuestaAbierta = text;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Ingresa tu respuesta (solo números)',
-                ),
-                keyboardType: TextInputType.number,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                // ... Otros atributos para personalizar tu TextField
-              ),
-            SizedBox(height: 50),
-            Container(
-              width: double.infinity,
-              child: Row(
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: (preguntaActualIndex > 0) ? () {
-                        setState(() {
-                          preguntaActualIndex--;
-                          selectedOptionIndex = null;
-                          respuestaAbiertaController.clear();
-                        });
-                      } : null,
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: (preguntaActualIndex > 0) ? Colors.grey : Colors.grey), // Borde con color purple si está activado, blanco si no lo está
-                        backgroundColor: (preguntaActualIndex > 0) ? Colors.white : Colors.white, // Fondo purple si está activado, blanco si no lo está
-                        minimumSize: Size(double.infinity, 50), // Tamaño mínimo del botón
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero), // Bordes cuadrados
-                      ),
-                      child: Text('Anterior', style: TextStyle(color: (preguntaActualIndex > 0) ? Colors.black : Colors.black)), // Texto blanco si está activado, negro si no lo está
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 10, 10, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${preguntaActualIndex + 1} DE ${preguntas!.length}',
+                          style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400,fontFamily: 'Roboto'),
+                        ),
+                      ],
                     ),
                   ),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: handleNextQuestion,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.deepPurpleAccent), // Borde purple
-                          backgroundColor:  Color(0xFFF7A72DE), // Fondo blanco
-                          minimumSize: Size(double.infinity, 50), // Tamaño mínimo del botón
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero), // Bordes cuadrados
+                  SizedBox(height: 5,),
+                  Text(
+                    "${preguntaActualIndex + 1}. ${preguntaActual.questionText}",
+                    style: TextStyle(color: Colors.black,
+                      fontFamily: 'Roboto',
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500,),
+                  ),
+                  SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      for (int i = 0; i < preguntaActual.options.length; i++)
+                        InkWell(
+                          onTap: () {
+                            handleOptionSelected(i);
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: selectedOptionIndex == i
+                                  ? Colors.blueAccent.withOpacity(0.2)
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: selectedOptionIndex == i
+                                    ? Colors.blueAccent
+                                    : Colors.grey,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${String.fromCharCode(i + 65)}. ${preguntaActual.options[i].optionText}",
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                selectedOptionIndex == i
+                                    ? Icon(
+                                  Icons.check,
+                                  color: Colors.blueAccent,
+                                )
+                                    : SizedBox.shrink(),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: Text('Siguiente', style: TextStyle(color: Colors.white)), // Texto purple
+                    ],
+                  ),
+                  // Mostrar input de texto para preguntas sin opciones
+                  if (preguntaActual.options.isEmpty)
+                    TextFormField(
+                      controller: respuestaAbiertaController,
+                      focusNode: respuestaAbiertaFocusNode,
+                      onChanged: (text) {
+                        setState(() {
+                          respuestaAbierta = text;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelStyle: const TextStyle(
+                          color: Color(0xFFACACAC),
+                          fontFamily: 'SF Pro Text',
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        hintText: 'Ingresa tu respuesta (solo números)',
+                        helperStyle: const TextStyle(
+                          color: Color(0xFFACACAC),
+                          fontFamily: 'SF Pro Text',
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
+                      keyboardType: TextInputType.number,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
+                  SizedBox(height: 50),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Container(
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: (preguntaActualIndex > 0)
+                        ? () {
+                      setState(() {
+                        preguntaActualIndex--;
+                        selectedOptionIndex = null;
+                        respuestaAbiertaController.clear();
+                      });
+                    }
+                        : null,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: (preguntaActualIndex > 0) ? Colors.grey : Colors.grey,
+                      ),
+                      backgroundColor: (preguntaActualIndex > 0) ? Colors.white : Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text(
+                      'Anterior',
+                      style: TextStyle(color: (preguntaActualIndex > 0) ? Colors.black : Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: handleNextQuestion,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.deepPurpleAccent),
+                      backgroundColor: Color(0xFFF7A72DE),
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text('Siguiente', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

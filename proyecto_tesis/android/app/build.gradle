@@ -62,6 +62,7 @@ android {
     buildscript {
         repositories {
             google()
+            mavenCentral()
             jcenter()
         }
         dependencies {
@@ -76,6 +77,14 @@ android {
 
 flutter {
     source '../..'
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
 }
 
 dependencies {}

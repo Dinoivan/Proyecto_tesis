@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:proyecto_tesis/screems/main_screems/configuration.dart';
 import 'package:proyecto_tesis/screems/main_screems/emergency_contacts.dart';
 import 'package:proyecto_tesis/main.dart';
 
@@ -56,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>  EmergencyContacts(),
+                        pageBuilder: (context, animation, secondaryAnimation) =>  Configuration(),
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {
                           return FadeTransition(
                             opacity: animation,
@@ -95,6 +96,22 @@ class _ChatScreenState extends State<ChatScreen> {
     '16.¿Cuál es el objetivo de este proyecto': 'El proyecto tiene como finalidad ayudar a las mujeres en situaciones de peligro',
     // Agrega más preguntas y respuestas aquí según tus necesidades
   };
+
+  // Función para encontrar la pregunta más similar usando la distancia de Levenshtein
+  String findMostSimilarQuestion(String input) {
+    int minDistance = input.length;
+    String closestMatch = input;
+
+    predefinedResponses.keys.forEach((question) {
+      int distance = levenshteinDistance(input, question);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestMatch = question;
+      }
+    });
+
+    return closestMatch;
+  }
   // Función para realizar la búsqueda fuzzy
   // Función para realizar la búsqueda fuzzy
   int levenshteinDistance(String a, String b) {
@@ -115,7 +132,6 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     }
-
     return dp[n][m];
   }
 
@@ -129,10 +145,10 @@ class _ChatScreenState extends State<ChatScreen> {
         _controller.clear();
       });
 
-
       if (_selectedQuestion != null) {
+        String closestQuestion = findMostSimilarQuestion(text);
         // Busca la respuesta correspondiente a la pregunta seleccionada
-        String? predefinedResponse = predefinedResponses[_selectedQuestion!];
+        String? predefinedResponse = predefinedResponses[closestQuestion];
         if (predefinedResponse != null) {
           // Si se encuentra la respuesta, agrégala a los mensajes
           setState(() {
@@ -148,7 +164,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Uri.parse('https://api.openai.com/v1/chat/completions'),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer', // Reemplaza con tu clave de API
+            'Authorization': '', // Reemplaza con tu clave de API
           },
           body: jsonEncode({
             'model': 'gpt-3.5-turbo-0125', // Modelo de ChatGPT
@@ -211,10 +227,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       // Opcional: Define el radio de borde para que sea redondeado
                       color: Colors.white,
                     ),
-                    margin: EdgeInsets.only(left: 0),
-                    padding: EdgeInsets.only(left: 7),
+                    padding: EdgeInsets.only(left: 30),
                     alignment: Alignment.center,
                     child: Container(
+                      width: double.infinity,
+                      height: 35,
                       // Establece un ancho máximo
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal, // Establece el desplazamiento horizontal
@@ -246,8 +263,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Text(
                                     'Seleccione pregunta',
                                     style: TextStyle(
+                                      fontFamily: 'SFProText',
                                       color: Colors.black54,
-                                      fontSize: 15
+                                      fontSize: 13.0
                                     ),
                                   ),
                                   Icon(
@@ -279,7 +297,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: 35,),
+                SizedBox(width: 35),
+
                 Container(
                   margin: EdgeInsets.only(right: 30),
                   child: InkWell(
@@ -290,8 +309,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       alignment: Alignment.center,
                       children: [
                         Container(
-                          width: 100,
-                          height: 50,
+                          width: 80,
+                          height: 35,
                           decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
                             borderRadius: BorderRadius.circular(20.0),
@@ -299,13 +318,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                         Positioned(
-                          left: 0,
+                          top: 8.0,
+                          left: 2,
                           right: 0,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Salir', style: TextStyle(color: Colors.black54, fontSize: 20)), // Tamaño del texto "Salir"
-                              Icon(Icons.close_rounded, color: Colors.black54, size: 25), // Tamaño del icono "x"
+                              Text('Salir', style: TextStyle(color: Colors.black54, fontSize: 13)), // Tamaño del texto "Salir"
+                              Icon(Icons.close_rounded, color: Colors.black54, size: 18), // Tamaño del icono "x"
                             ],
                           ),
                         ),

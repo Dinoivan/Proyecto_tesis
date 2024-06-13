@@ -33,6 +33,8 @@ dependencies:
   path_provider: ^2.0.9
   fuzzy: ^0.5.1
   flutter_background_service: ^5.0.5
+  url_launcher: ^6.0.9
+  sensors_plus: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -44,3 +46,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+  fonts:
+    - family: SFProText
+      fonts:
+        - asset: fonts/FontsFree-Net-SFProText-Bold-1.ttf
+        - asset: fonts/fonnts.com-SF_Pro_Text_Regular.ttf
+        - asset: fonts/FontsFree-Net-SFProText-Medium-1.ttf
+          weight: 700

@@ -246,7 +246,7 @@ class _KeyWordState extends State<KeyWord>{
                       keyword == null ? 'Ingrese palabra clave': 'Palabra clave actual',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 25.0,
+                        fontSize: 22.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -254,7 +254,7 @@ class _KeyWordState extends State<KeyWord>{
                   Form(
                     key: _formKey,
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 30,horizontal: 30),
+                      padding: EdgeInsets.symmetric(vertical: 20,horizontal: 30),
                       child: Column(
                         children: <Widget>[
                           TextFormField(
@@ -262,7 +262,7 @@ class _KeyWordState extends State<KeyWord>{
                             readOnly: keyword == null ? false : true,
                             style: TextStyle(
                               color:Colors.black,
-                              fontSize:15,
+                              fontSize:15.0,
                             ),
                             decoration: InputDecoration(
                               border:OutlineInputBorder(
@@ -279,15 +279,22 @@ class _KeyWordState extends State<KeyWord>{
                               ),
                               labelText: _keywordController.text.isEmpty ? " Palabra clave": "",
                               labelStyle: const TextStyle(
-                                color: Colors.black,
+                                color: Color(0xFFACACAC),
+                                fontFamily: 'SF Pro Text',
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.normal,
                               ),
                               hintText: _keywordController.text.isEmpty ? "": " Palabra clase",
                               helperStyle: const TextStyle(
-                                color: Colors.black12,
-                                fontSize: 15,
+                                color: Color(0xFFACACAC),
+                                fontFamily: 'SF Pro Text',
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.normal,
                               ),
-                              fillColor: keyword!=null ? Colors.grey[200]: null,
+                              fillColor: keyword!=null ? Colors.grey[50]: null,
                               filled: keyword!=null,
+
+                              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                             ),
                             keyboardType: TextInputType.text,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -309,12 +316,12 @@ class _KeyWordState extends State<KeyWord>{
                           ),
 
                           const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 197),
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 224),
                           ),
 
                           SizedBox(
                             width: double.infinity,
-                            height: 55,
+                            height: 56,
                             child: ElevatedButton(
                               onPressed: () async {
                                 if(_formKey.currentState != null && _formKey.currentState!.validate()){
@@ -426,7 +433,7 @@ class _KeyWordState extends State<KeyWord>{
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 18.0,
+                                  fontSize: 16.0,
                                 ),
                               ),
                             ),
@@ -446,16 +453,16 @@ class _KeyWordState extends State<KeyWord>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
 
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -464,12 +471,13 @@ class _KeyWordState extends State<KeyWord>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

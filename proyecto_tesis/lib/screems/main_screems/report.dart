@@ -45,23 +45,29 @@ class _DateWidgetState extends State<DateWidget>{
     return TextFormField(
       controller: _dateController,
       decoration: InputDecoration(
-        suffixIcon: Icon(Icons.calendar_today,color: Colors.black,),
-        labelText: _dateController.text.isEmpty ? "Seleccione fecha de suceso": "",
-        hintText: _dateController.text.isEmpty ? "": "Seleccione fecha de suceso",
-        labelStyle:TextStyle(fontSize: 15.0, color: Colors.black),
+        suffixIcon: Icon(Icons.calendar_today, color: Colors.grey,),
+        labelText: _dateController.text.isEmpty ? "Fecha de suceso": "",
+        hintText: _dateController.text.isEmpty ? "": "Fecha de suceso",
+        labelStyle:TextStyle(fontSize: 15.0,  fontFamily: 'SF Pro Text',
+          color: Color(0xFFACACAC),),
         hintStyle:TextStyle(
-            color: Colors.black,
-            fontSize:15.0
+            color: Color(0xFF79747E),
+            fontSize:16.0
         ),
-        border: OutlineInputBorder(
-          borderRadius:BorderRadius.circular(5),
+        border:OutlineInputBorder(
+          borderRadius:BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
+        ),
+        enabledBorder:OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
         focusedBorder:OutlineInputBorder(
-          borderSide:BorderSide(color: Colors.black26,width: 2.0),
-          borderRadius:BorderRadius.circular(5),
-
+          borderRadius:BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
+
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       readOnly: true,
       onTap: () async{
@@ -279,13 +285,13 @@ int _selectedIndex = 3;
               children: <Widget>[
 
                 Container(
-                  padding: EdgeInsets.fromLTRB(30, 0, 10, 30),
+                  padding: EdgeInsets.fromLTRB(30, 0, 10, 20),
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Generar reporte',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 25.0,
+                      fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -300,8 +306,8 @@ int _selectedIndex = 3;
                         TextFormField(
                           controller: _nameController,
                           style: TextStyle(
-                            color:Colors.black,
-                            fontSize:15,
+                            color: Colors.black,
+                            fontSize:16.0,
                           ),
                           decoration: InputDecoration(
                             border:OutlineInputBorder(
@@ -318,13 +324,18 @@ int _selectedIndex = 3;
                             ),
                             labelText: _nameController.text.isEmpty ? "Nombre" : "",
                             labelStyle: const TextStyle(
-                              color: Colors.black,
+                              fontFamily: 'SF Pro Text',
+                              color: Color(0xFFACACAC),
+                              fontWeight: FontWeight.normal,
                             ),
                             hintText: _nameController.text.isEmpty ? "": " Nombre",
                             helperStyle: const TextStyle(
-                              color: Colors.black12,
-                              fontSize: 15,
+                              fontFamily: 'SF Pro Text',
+                              color: Color(0xFFACACAC),
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.normal,
                             ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
                           ),
                           keyboardType: TextInputType.text,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -343,44 +354,35 @@ int _selectedIndex = 3;
 
                         SizedBox(height: 20,),
                         Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Descripción de los hechos:',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Container(
                           child: SingleChildScrollView(
                             controller: _scrollController,
                             child:TextFormField(
                               controller: _descriptionController,
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 15.0,
+                                fontSize: 16.0,
                               ),
                               maxLines: 5, // Esto permite un número ilimitado de líneas
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(2.0),
-                                  borderSide: BorderSide(color: Colors.black26),
+                                  borderSide: BorderSide(color: Colors.black26,width: 2),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(2.0),
-                                  borderSide: BorderSide(color: Colors.black26),
+                                  borderSide: BorderSide(color: Colors.black26,width: 2),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(2.0),
-                                  borderSide: BorderSide(color: Colors.black26),
+                                  borderSide: BorderSide(color: Colors.black26,width: 2),
                                 ),
 
-                                hintText: "Ingrese la descripción",
+                                hintText: "Descripción de los hechos",
                                 hintStyle: TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 15.0,
+                                  fontFamily: 'SF Pro Text',
+                                  color: Color(0xFFACACAC),
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 16.0,
                                 ),
                               ),
                               keyboardType: TextInputType.text,
@@ -399,12 +401,12 @@ int _selectedIndex = 3;
                         DateWidget(birthdayBloc: widget.registerBloc),
 
                         const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 60),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 95.0),
                         ),
 
                         SizedBox(
                           width: double.infinity,
-                          height: 55,
+                          height: 56,
                           child: ElevatedButton(
                             onPressed:() async {
                               if(_formKey.currentState != null && _formKey.currentState!.validate()){
@@ -503,8 +505,9 @@ int _selectedIndex = 3;
                               'Guardar',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontFamily: 'SF Pro Text',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.0,
                               ),
                             ),
 
@@ -526,15 +529,15 @@ int _selectedIndex = 3;
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -544,13 +547,14 @@ int _selectedIndex = 3;
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

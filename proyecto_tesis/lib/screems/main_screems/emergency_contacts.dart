@@ -198,8 +198,8 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
         barrierDismissible: false,
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('¡Atención',style: TextStyle(fontSize: 20.0),),
-            content: Text('Ahora deberás ingresar una palabra clave para activar mediante voz la alerta de emergencia.',
+            title: Text('¡Atención!',style: TextStyle(fontSize: 20.0),),
+            content: Text('Ahora ingresa una palabra clave para activar la alerta mediante reconocimiento de voz.',
             textAlign: TextAlign.justify,),
             actions: [
               TextButton(
@@ -217,7 +217,7 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                      ),
                     );
                   },
-                  child: Text('Agregar palabra clave,'),
+                  child: Text('Agregar palabra clave'),
               ),
             ],
        ),
@@ -268,8 +268,9 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                       child: Text(
                         'Mis contactos de emergencia',
                         style: TextStyle(
+                          fontFamily: 'Roboto',
                           color: Colors.black,
-                          fontSize: 23.0,
+                          fontSize: 22.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -283,9 +284,10 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                           'Agrega a tus contactos de confianza para alertarlos cuando decidas activar el botón de emergencia',
                           textAlign: TextAlign.justify,
                           style: TextStyle(
+                            fontFamily: 'SF Pro Text',
                             color: Color(0xFFAA4A4A4),
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
                       ),
@@ -295,143 +297,142 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                     if (contactosDeEmergencia != null && contactosDeEmergencia!.isNotEmpty)
                       Column(
                         children: contactosDeEmergencia!
-                            .map((contacto) => Container(
-                          margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black26),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                contacto['fullname'],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                            .map((contacto) => GestureDetector(
+                          onTap: () async {
+                            Map<String, dynamic>? getContact = await showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return GetContactModal(contact: contacto);
+                              },
+                            );
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            padding: EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black26),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  contacto['fullname'],
+                                  style: TextStyle(
+                                    fontFamily: 'Roboto',
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () async {
-                                      // Muestra el modal para editar el contacto
-                                      Map<String, dynamic>? updatedContact = await showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return EditContactModal(contact: contacto);
-                                        },
-                                      );
-                                      // Si updatedContact no es nulo, significa que se guardaron cambios, así que actualiza la lista
-                                      if (updatedContact != null) {
-                                        await _getContactosEmergencia();
-                                      }
-                                    },
-                                    child: Icon(
-                                      Icons.edit,
-                                      color: Color(0xFF7A72DE), // Puedes cambiar el color a tu preferencia
-                                      size: 21.0 // Puedes ajustar el tamaño según sea necesario
-                                    ),
-                                  ),
-                                  SizedBox(width: 20.0), // Añade un espacio entre los iconos
-                                  GestureDetector(
-                                    onTap: () async{
-
-                                      Map<String, dynamic>? getContact = await showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return GetContactModal(contact: contacto);
-                                        },
-                                      );
-                                      // Si updatedContact no es nulo, significa que se guardaron cambios, así que actualiza la lista
-                                    },
-                                    child: Icon(
-                                      Icons.check_box_rounded,
-                                      color: Colors.green,
-                                      size: 21.0, // Puedes ajustar el tamaño según sea necesario
-                                    ),
-                                  ),
-                                  SizedBox(width: 20.0), // Añade un espacio entre los iconos
+                                Row(
+                                  children: [
                                     GestureDetector(
-                                    onTap: () async {
-                                      // Muestra el diálogo de confirmación
-                                      bool confirmado = await showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text("Confirmar eliminación",
-                                              style: TextStyle(fontSize: 15.0, color: Colors.black,fontWeight: FontWeight.bold),),
-                                            content: Text(
-                                                "¿Estás seguro de que deseas eliminar este contacto?",textAlign: TextAlign.justify,),
-                                            actions: [
-
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context, false);
-                                                    },
-                                                    child: Text("No"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context, true);
-                                                    },
-                                                    child: Text("Sí"),
-                                                  ),
-
-                                                ],
-                                              )
-
-                                            ],
-                                          );
-                                        },
-                                      );
-
-                                      if(confirmado) {
-                                        int? idContacto = contacto['id'];
-                                        print("id: $idContacto");
-                                        try {
-                                          // Llama a la función DeleteEmergency para eliminar el contacto de emergencia
-                                          final response = await DeleteEmergency(token!, idContacto!);
-                                          // Verifica si la eliminación fue exitosa
-                                          if (response.statusCode == 200) {
-                                             await _getContactosEmergencia();
-                                            // Muestra un mensaje de éxito al usuario
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Contacto de emergencia eliminado con éxito'),
-                                              ),
+                                      onTap: () async {
+                                        // Muestra el modal para editar el contacto
+                                        Map<String, dynamic>? updatedContact = await showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return EditContactModal(contact: contacto);
+                                          },
+                                        );
+                                        // Si updatedContact no es nulo, significa que se guardaron cambios, así que actualiza la lista
+                                        if (updatedContact != null) {
+                                          await _getContactosEmergencia();
+                                        }
+                                      },
+                                      child: Icon(
+                                          Icons.edit,
+                                          color: Color(0xFF7A72DE), // Puedes cambiar el color a tu preferencia
+                                          size: 21.0 // Puedes ajustar el tamaño según sea necesario
+                                      ),
+                                    ),
+                                    SizedBox(width: 20.0), // Añade un espacio entre los iconos
+                                    GestureDetector(
+                                      onTap: () async {
+                                        Map<String, dynamic>? getContact = await showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return GetContactModal(contact: contacto);
+                                          },
+                                        );
+                                      },
+                                      child: Icon(
+                                        Icons.check_box_rounded,
+                                        color: Colors.green,
+                                        size: 21.0, // Puedes ajustar el tamaño según sea necesario
+                                      ),
+                                    ),
+                                    SizedBox(width: 20.0), // Añade un espacio entre los iconos
+                                    GestureDetector(
+                                      onTap: () async {
+                                        // Muestra el diálogo de confirmación
+                                        bool confirmado = await showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Confirmar eliminación",
+                                                style: TextStyle(fontSize: 15.0, color: Colors.black, fontWeight: FontWeight.bold),),
+                                              content: Text(
+                                                "¿Estás seguro de que deseas eliminar este contacto?", textAlign: TextAlign.justify,),
+                                              actions: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context, false);
+                                                      },
+                                                      child: Text("No"),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context, true);
+                                                      },
+                                                      child: Text("Sí"),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
                                             );
-                                          } else {
-                                            // Muestra un mensaje de error al usuario
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                          },
+                                        );
+
+                                        if (confirmado) {
+                                          int? idContacto = contacto['id'];
+                                          print("id: $idContacto");
+                                          try {
+                                            // Llama a la función DeleteEmergency para eliminar el contacto de emergencia
+                                            final response = await DeleteEmergency(token!, idContacto!);
+                                            // Verifica si la eliminación fue exitosa
+                                            if (response.statusCode == 200) {
+                                              await _getContactosEmergencia();
+                                              // Muestra un mensaje de éxito al usuario
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Contacto de emergencia eliminado con éxito'),
+                                                ),
+                                              );
+                                            } else {
+                                              // Muestra un mensaje de error al usuario
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Error al eliminar el contacto de emergencia ${response.statusCode} ${token}'),
+                                                ),
+                                              );
+                                            }
+                                          } catch (e) {
+                                            // Muestra un mensaje de error genérico al usuario
+                                            ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text(
-                                                    'Error al eliminar el contacto de emergencia ${response.statusCode} ${token}'),
+                                                content: Text('Error al eliminar el contacto de emergencia: $e'),
                                               ),
                                             );
                                           }
-                                        } catch (e) {
-                                          // Muestra un mensaje de error genérico al usuario
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Error al eliminar el contacto de emergencia: $e'),
-                                            ),
-                                          );
                                         }
-                                      }
                                       },
                                       child: Icon(
                                         Icons.delete,
@@ -439,9 +440,10 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                                         size: 21.0,
                                       ),
                                     ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ))
                             .toList(),
@@ -474,12 +476,12 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
               child: Column(
                 children: <Widget>[
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
                   ),
 
                   SizedBox(
                     width: double.infinity,
-                    height: 55,
+                    height: 56,
                     child: ElevatedButton(
                       onPressed:  () {
                         Navigator.pushReplacement(
@@ -520,8 +522,9 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
                           'Agregar contactos',
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
+                            fontFamily: 'SF Pro Text',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14.0,
                           ),
                         ),
 
@@ -529,65 +532,6 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
 
                     ),
                   ),
-
-                  SizedBox(height: 10.0,),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => ChatScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
-                            transitionDuration: Duration(milliseconds: 5),
-                          ),
-                        );
-
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                        overlayColor: MaterialStateProperty.resolveWith<Color>((states){
-                          if(states.contains(MaterialState.disabled)){
-                            return Colors.grey.withOpacity(0.5);
-                          }
-                          return Colors.transparent;
-                        }),
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0),
-                              side: BorderSide(color: Colors.deepPurpleAccent)
-                          ),
-                        ),
-
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          EdgeInsets.symmetric(vertical:10.0),
-                        ),
-
-                      ),
-
-                      child: const Center(
-                        child: Text(
-                          'Resolver dudas con chatbot',
-                          style: TextStyle(
-                            color: Color(0xFF7A72DE),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
-
-                      ),
-
-                    ),
-
-                  ),
-
                 ],
               ),
             ),
@@ -601,15 +545,15 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
         iconSize: 35,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon:Icon(Icons.home_filled),
+            icon:Icon(Icons.home_outlined),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group),
+            icon: Icon(Icons.group_outlined),
             label: 'Contactos',
           ),
           BottomNavigationBarItem(
@@ -619,13 +563,14 @@ class _EmergencyContactsState extends State<EmergencyContacts>{
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
             label: 'Configura',
           ),
 
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey[700],
+        selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+        unselectedItemColor:  Color(0xFF9BAEB8),
         onTap: _onItemTapped,
       ),
     );

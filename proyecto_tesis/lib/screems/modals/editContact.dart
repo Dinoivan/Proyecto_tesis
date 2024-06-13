@@ -84,7 +84,8 @@ class _EditContactModalState extends State<EditContactModal> {
           children: [
             TextFormField(
               controller: _fullnameController,
-              decoration: InputDecoration(labelText: 'Nombre completo'),
+              decoration: InputDecoration(labelText: 'Nombre completo', labelStyle: TextStyle(fontSize: 18.0),),
+              style: TextStyle(fontSize: 14.0),
               keyboardType: TextInputType.text,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -100,7 +101,8 @@ class _EditContactModalState extends State<EditContactModal> {
             ),
             TextFormField(
               controller: _phoneNumberController,
-              decoration: InputDecoration(labelText: 'Número de teléfono'),
+              decoration: InputDecoration(labelText: 'Número de teléfono', labelStyle: TextStyle(fontSize: 18.0),),
+              style: TextStyle(fontSize: 14.0),
               keyboardType: TextInputType.phone,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -117,7 +119,8 @@ class _EditContactModalState extends State<EditContactModal> {
             ),
             TextFormField(
               controller: _relationshipController,
-              decoration: InputDecoration(labelText: 'Relación'),
+              decoration: InputDecoration(labelText: 'Relación',labelStyle: TextStyle(fontSize: 18.0),),
+              style: TextStyle(fontSize: 14.0),
               keyboardType: TextInputType.text,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {

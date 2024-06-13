@@ -52,7 +52,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-
   Widget _buildImage(){
     return Row(
       children: [
@@ -68,13 +67,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildTitle(){
     return Container(
-      margin: EdgeInsets.only(left: 40.0,top: 10),
+      margin: EdgeInsets.only(left: 33.0,top: 20),
       alignment: Alignment.centerLeft,
       child: Text(
         'Iniciar sesión',
         style: TextStyle(
           color: Colors.black,
-          fontSize: 30.0,
+          fontFamily: 'Roboto',
+          fontSize: 24.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -85,14 +85,16 @@ class _LoginPageState extends State<LoginPage> {
     return Form(
       key: _formKey,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 40),
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
         child: Column(
           children: <Widget>[
+            SizedBox(height: 10),
             _buildEmailFormField(),
-            SizedBox(height: 20),
+            SizedBox(height: 18),
             _buildPasswordFormField(),
+            SizedBox(height: 2,),
             _buildPasswordRecoveryButton(),
-            SizedBox(height: 55,),
+            SizedBox(height: 44,),
             _buildSubmitButton(),
             SizedBox(height: 10.0,),
             _buildRegisterButton(),
@@ -113,27 +115,27 @@ class _LoginPageState extends State<LoginPage> {
       ),
       decoration: InputDecoration(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(color: Colors.black26,width: 2.0),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: BorderSide(color: Colors.black26, width: 2.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
-          borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          borderRadius: BorderRadius.circular(5.0),
+          borderSide: BorderSide(color: Colors.black26, width: 2.0),
         ),
-        labelText: _emailController.text.isEmpty ? "Correo": "",
+        labelText: _emailController.text.isEmpty ? "Correo@mail.com": "",
         labelStyle: const TextStyle(
           color: Colors.black,
         ),
-        hintText:  _emailController.text.isEmpty ? "": "Correo",
+        hintText:  _emailController.text.isEmpty ? "": "Correo@mail.com",
         hintStyle: const TextStyle(
           color: Colors.black38,
           fontSize: 15,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.emailAddress,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -177,8 +179,9 @@ class _LoginPageState extends State<LoginPage> {
         "¿Olvidaste tu contraseña?",
         style: TextStyle(
           color: Color(0xFF938CDF),
-          fontWeight: FontWeight.w600,
-          fontSize: 15.0,
+          fontFamily: 'SF Pro Text',
+          fontWeight: FontWeight.w500,
+          fontSize: 14.7,
         ),
       ),
     );
@@ -187,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
-      height: 55,
+      height: 56,
       child: ElevatedButton(
         key: Key('login_button'),
         onPressed: _isLoading ? null : _submitForm,
@@ -195,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF7A72DE)),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(40.0),
+              borderRadius: BorderRadius.circular(100.0),
             ),
           ),
           padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
@@ -203,11 +206,11 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         child: _isLoading ? CircularProgressIndicator() : Text(
-          'Iniciar sesión',
+          'Ingresar',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-            fontSize: 18.0,
+            fontSize: 14.0,
           ),
         ),
       ),
@@ -226,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w600,
-                fontSize: 14,
+                fontSize: 16,
               ),
               children: <TextSpan>[
                 TextSpan(
@@ -236,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     color: Color(0xFF938CDF),
                     fontWeight: FontWeight.w600,
-                    fontSize: 15.0,
+                    fontSize: 16.0,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -358,20 +361,20 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
       obscureText: _obscureText,
       style: const TextStyle(
         color: Colors.black,
-        fontSize: 15,
+        fontSize: 15.0,
       ),
       decoration: InputDecoration(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: const BorderSide(color: Colors.black26, width: 2.0),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
+          borderRadius: BorderRadius.circular(5.0),
           borderSide: const BorderSide(color: Colors.black26, width: 2.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(2.0),
-          borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+          borderRadius: BorderRadius.circular(5.0),
+          borderSide: const BorderSide(color: Colors.black26, width: 2.0),
         ),
         labelText: widget.passwordControler.text.isEmpty ? "Contraseña": "",
         labelStyle: const TextStyle(
@@ -389,7 +392,7 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
             color: Colors.grey,
           ),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10.0),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15.0),
       ),
       keyboardType: TextInputType.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,

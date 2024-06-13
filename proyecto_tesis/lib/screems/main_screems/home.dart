@@ -37,7 +37,6 @@ import 'add_contacts.dart';
     //Activación de reconocimeinto de voz (palabra clav)
     late final speech.SpeechRecognition _speech;
     bool _isListening = false;
-    //bool _isLoading = false;
     bool _shouldStopListening = false;
     final List<String> _keywords = [];
     String? keyword;
@@ -126,7 +125,7 @@ import 'add_contacts.dart';
               print('Reconocimiento de voz disponible: $_isListening');
               print("Palabra inicio: $_keywords");
               if (!_isListening) {
-                // Si el reconocimiento de voz no está disponible, reiniciar la escucha después de un breve período de tiempo
+                // Si el reconocimiento de voz no está disponible, reiniciar la escucha
                 Future.delayed(Duration(seconds: 1), () {
                   if (!_shouldStopListening) {
                     _startListening();
@@ -167,9 +166,7 @@ import 'add_contacts.dart';
 
                   // Verifica el resultado del servicio
                   if (resultado.statusCode == 200) {
-                    // Activa el botón SOS
                     _toggleAlertButton();
-                    // Navega a la pantalla de envío de ubicación
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
@@ -364,7 +361,7 @@ import 'add_contacts.dart';
         builder: (BuildContext context) {
           return AlertDialog(
             title:Text('¿Salir de la aplicación?',
-              style: TextStyle(fontSize: 20, color: Colors.black,fontWeight: FontWeight.bold),),
+              style: TextStyle(fontSize: 20.0, color: Colors.black,fontWeight: FontWeight.bold),),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
@@ -417,7 +414,7 @@ import 'add_contacts.dart';
         context: context,
         builder: (context) => AlertDialog(
           title: Text('¡Atención!',style: TextStyle(fontSize: 20.0),),
-          content: Text('No tienes contactos de emergencia debes agregar al menos uno para mandar tu ubicación.',
+          content: Text('No tienes contactos agregados. Agregar por lo menos uno para mandar tu ubicación.',
             textAlign: TextAlign.justify,),
           actions: [
 
@@ -547,7 +544,7 @@ import 'add_contacts.dart';
             onPressed: () async {
               await _showExitConfirmationDialog(context);
             },
-            icon: Icon(Icons.logout, color: Colors.black),
+            icon: Icon(Icons.menu, color: Colors.black),
           ),
       ),
 
@@ -564,30 +561,33 @@ import 'add_contacts.dart';
                 Container(
                   alignment: Alignment.center,
                   child: Text(
-                    '¿Estas en peligro?',
+                    '¿Estás en peligro?',
                     style: TextStyle(
+                      fontFamily: 'Roboto',
                       color: Colors.black,
-                      fontSize: 20.0,
+                      fontSize: 22.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
 
                 Container(
-                  padding: EdgeInsets.fromLTRB(10.0, 10, 10, 0),
+                  padding: EdgeInsets.fromLTRB(20.0,5.0, 20.0, 0),
                   alignment: Alignment.center,
                   child: Text(
                     'Haz click sobre el boton para pedir ayuda',
                     style: TextStyle(
+                      fontFamily: 'SF Pro Text',
+                      fontWeight: FontWeight.w500,
                       color: Color.fromRGBO(164, 164, 164, 1.0),
-                      fontSize: 16.1,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 15.0,
+
                     ),
                   ),
                 ),
 
                 Container(
-                  margin: EdgeInsets.only(top: 30.0),
+                  margin: EdgeInsets.only(top: 70.0),
                   alignment: Alignment.center,
                   child: InkWell(
                     onTap: () async {
@@ -644,20 +644,20 @@ import 'add_contacts.dart';
 
                     },
                     child: Container(
-                      width: 320, // Aumentamos el tamaño del contenedor para incluir el borde
-                      height: 320, // Aumentamos el tamaño del contenedor para incluir el borde
+                      width: 300, // Aumentamos el tamaño del contenedor para incluir el borde
+                      height: 300, // Aumentamos el tamaño del contenedor para incluir el borde
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.transparent, // Hacemos el color del contenedor transparente
                         border: Border.all(
                           color: Color(0xFFE9E8FF), // Color del borde E9E8FF
-                          width: 30, // Grosor del borde
+                          width: 20, // Grosor del borde
                         ),
                       ),
                       child: Center(
                         child: Container(
-                          width: 340,
-                          height: 340,
+                          width: 300,
+                          height: 300,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: isAlertButtonPressed ? Color(0xFF77A72DE):  Color(0xFFCCC8FF),
@@ -667,9 +667,10 @@ import 'add_contacts.dart';
                                 ? Text(
                               'SOS',
                               style: TextStyle(
-                                fontSize: 40,
+                                fontFamily: 'SF Pro Text',
+                                fontSize: 57.33,
                                 color: Colors.white,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w500
                               ),
                             )
                                 : CircularProgressIndicator( // Indicador de carga circular
@@ -683,16 +684,17 @@ import 'add_contacts.dart';
                 ),
 
                 Container(
-                  margin: EdgeInsets.only(top: 25.0),
+                  margin: EdgeInsets.only(top: 20.0),
                   alignment: Alignment.center,
                   child: Column(
                     children: [
                       Text(
-                        'Presione el boton para',
+                        'Presione el botón para',
                         style: TextStyle(
+                          fontFamily: 'SF Pro Text',
+                          fontWeight: FontWeight.w500,
                           color: Color.fromRGBO(164, 164, 164, 1.0),
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 15.0,
                         ),
                       ),
                      RichText(
@@ -701,8 +703,9 @@ import 'add_contacts.dart';
                              TextSpan(
                                text: 'prender o apagar ',
                                style: TextStyle(
-                                 color: Colors.grey,
-                                 fontSize: 20.0,
+                                 fontFamily: 'SF Pro Text',
+                                 color: Color(0xFFA4A4A4),
+                                 fontSize: 18.0,
                                  fontWeight: FontWeight.bold,
                                ),
                              ),
@@ -710,9 +713,10 @@ import 'add_contacts.dart';
                              TextSpan(
                                text: 'la alerta',
                                style: TextStyle(
+                                 fontFamily: 'SF Pro Text',
+                                 fontWeight: FontWeight.w500,
                                  color: Color.fromRGBO(164, 164, 164, 1.0),
-                                 fontSize: 20.0,
-                                 fontWeight: FontWeight.bold,
+                                 fontSize: 18.0,
                                ),
                              ),
                            ]
@@ -729,12 +733,12 @@ import 'add_contacts.dart';
                     child: Column(
                       children: <Widget>[
                         const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20.0),
                         ),
 
                         SizedBox(
                           width: double.infinity,
-                          height: 55,
+                          height: 56,
                           child: ElevatedButton(
                             onPressed: ()  {
                                   Navigator.pushReplacement(
@@ -768,7 +772,7 @@ import 'add_contacts.dart';
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18.0,
+                                fontSize: 15.0,
                               ),
                             )
                                 : FutureBuilder(
@@ -782,7 +786,7 @@ import 'add_contacts.dart';
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 18.0,
+                                      fontSize: 15.0,
                                     ),
                                   );
                                 }
@@ -809,15 +813,15 @@ import 'add_contacts.dart';
           iconSize: 35,
           items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon:Icon(Icons.home_filled),
+              icon:Icon(Icons.home_outlined),
               label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Mi perfil',
           ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.group),
+              icon: Icon(Icons.group_outlined),
               label: 'Contactos',
             ),
             BottomNavigationBarItem(
@@ -827,13 +831,14 @@ import 'add_contacts.dart';
             ),
 
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.settings_outlined),
               label: 'Configura',
             ),
 
         ],
           currentIndex: _selectedIndex,
-          unselectedItemColor: Colors.grey[700],
+          selectedItemColor: Color(0xFF7A72DE), // Color del ícono seleccionado
+          unselectedItemColor:  Color(0xFF9BAEB8),
           onTap: _onItemTapped,
         ),
     );
